@@ -1,5 +1,6 @@
-from pathlib import Path
-content = '''<!doctype html>
+無問題，已經幫你將預覽同壓縮功能整合晒入去。你直接 copy 呢個完整版，冚過你原本嗰個檔案就用得，唔會再卡死同爆 localStorage。
+```html
+<!doctype html>
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -190,7 +191,7 @@ function forms(){
     return `<div class="k">標題</div><input id="slabel" class="input" placeholder="今晚結帳"><div class="k" style="margin-top:12px">手動結帳 / 分段還款</div><div class="card" id="payList">${tx.length?tx.map((t,idx)=>{const f=members().find(m=>m.id===t.from),to=members().find(m=>m.id===t.to);return `<div class="row payRow" data-k="${t.from}->${t.to}"><div style="flex:1"><div class="name"><span style="color:${f.color}">${esc(f.name)}</span> 俾 <span style="color:${to.color}">${esc(to.name)}</span></div><div class="muted">可分多次還</div></div><div style="width:140px"><input class="input payAmt" type="number" value="${Math.round(t.amt)}" style="text-align:right"></div><button class="b2 addPay" style="width:52px;padding:0">＋</button></div><div class="payments" style="padding:0 14px 12px 14px"><div class="ms">已還紀錄會累加，直到等於上面金額</div></div>`}).join(''):'<div class="row"><div class="muted">今次暫時唔使轉帳</div></div>'}</div><div style="height:12px"></div><button class="b" onclick="saveSnapshot()">儲存結帳快照</button><div class="ms" style="margin-top:8px">同一筆欠款可以分幾次還，總和夠數就算完成</div>`;
   }
   if(sheet==='receipt'){
-    return `<div class="rec"><div><div class="emoji">🧾</div><div style="margin-top:8px;font-weight:700">AI 收據掃描</div><div class="ms" style="margin-top:6px">上傳相片，先轉 base64 做預覽，唔會卡 UI</div></div></div><div style="height:12px"></div><input id="receiptFile" type="file" accept="image/*" class="input"><div style="height:8px"></div><img id="receiptPreview" style="display:none;width:100%;max-height:240px;object-fit:contain;border-radius:14px;border:1px solid rgba(255,255,255,.1)"><div style="height:10px"></div><button class="b2" onclick="uploadReceipt()">上傳並識別（demo）</button><div class="hr"></div><div class="ms">呢版先保證影相唔會鎖死畫面；真正 OCR 之後再接 API</div>`;
+    return `<div class="rec"><div><div class="emoji">🧾</div><div style="margin-top:8px;font-weight:700">AI 收據掃描</div><div class="ms" style="margin-top:6px">上傳相片，會自動壓縮兼秒速預覽，唔卡 UI</div></div></div><div style="height:12px"></div><input id="receiptFile" type="file" accept="image/*" class="input"><div style="height:8px"></div><img id="receiptPreview" style="display:none;width:100%;max-height:240px;object-fit:contain;border-radius:14px;border:1px solid rgba(255,255,255,.1)"><div style="height:10px"></div><button class="b2" onclick="uploadReceipt()">上傳並識別（demo）</button><div class="hr"></div><div class="ms">而家保證影幾大張相都唔會鎖死畫面，準備好接 API</div>`;
   }
   return '';
 }
@@ -206,18 +207,58 @@ function viewSnap(s){
 
 function settings(){return `<div class="card"><div class="row"><div style="flex:1"><div class="name">分享連結</div><div class="muted">直接俾朋友打開</div></div><button class="b2" style="width:auto;padding:0 14px" onclick="copyLink()">複製</button></div><div class="row"><div style="flex:1"><div class="name">提示</div><div class="muted">資料存在本機 localStorage，之後可再接 Firebase</div></div></div></div>`}
 
+// --- 新增：壓縮相片 Function ---
+async function compressImage(file, maxWidth = 800) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxWidth) {
+        h = Math.round((maxWidth / w) * h);
+        w = maxWidth;
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.7)); // 轉 JPEG 加 70% 畫質，大幅縮減容量
+    };
+    img.src = URL.createObjectURL(file); // 即時載入唔卡 UI
+  });
+}
+
 function bindSheet(){
   document.querySelectorAll('.colorSwatch').forEach(el=>el.onclick=()=>{$('#colVal').value=el.dataset.val});
+  
   const avatarFile=document.getElementById('avatarFile');
-  if(avatarFile)avatarFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;const b=await fileToBase64(f);const p=document.getElementById('avatarPreview');if(p){p.src=b;p.style.display='block'}const av=document.getElementById('av');if(av)av.value=b;};
+  if(avatarFile)avatarFile.onchange=async e=>{
+    const f=e.target.files[0];
+    if(!f)return;
+    const p=document.getElementById('avatarPreview');
+    if(p){p.src=URL.createObjectURL(f);p.style.display='block'}
+    toast('處理緊相片...');
+    const b=await compressImage(f, 300);
+    const av=document.getElementById('av');
+    if(av)av.value=b;
+  };
+  
   const receiptFile=document.getElementById('receiptFile');
-  if(receiptFile)receiptFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;const b=await fileToBase64(f);const p=document.getElementById('receiptPreview');if(p){p.src=b;p.style.display='block'}window.__receiptData=b;toast('已載入相片')};
+  if(receiptFile)receiptFile.onchange=async e=>{
+    const f=e.target.files[0];
+    if(!f)return;
+    const p=document.getElementById('receiptPreview');
+    if(p){p.src=URL.createObjectURL(f);p.style.display='block'}
+    toast('處理緊相片...');
+    const b=await compressImage(f, 1000);
+    window.__receiptData=b;
+    toast('相片已準備好');
+  };
+  
   document.querySelectorAll('[data-share]').forEach(inp=>inp.onchange=()=>{const arr=[...document.querySelectorAll('[data-share]')].filter(x=>x.checked).map(x=>x.dataset.share),m=document.getElementById('manualArea');if(m)m.innerHTML=`<div class="card">${members().filter(x=>arr.includes(x.id)).map(x=>`<div class="row"><div style="width:64px;color:${x.color||'#f97316'}">${esc(x.name)}</div><input class="input split" data-mid="${x.id}" type="number" placeholder="0"></div>`).join('')}</div>`});
   document.querySelectorAll('.chiprow .chip, .seg .chip').forEach(ch=>ch.onclick=()=>{if(ch.dataset.cat){document.querySelectorAll('.chiprow .chip').forEach(x=>x.classList.remove('on'));ch.classList.add('on')}if(ch.dataset.type){document.querySelectorAll('.seg .chip').forEach(x=>x.classList.remove('on'));ch.classList.add('on')}if(ch.dataset.split){document.querySelectorAll('[data-split]').forEach(x=>x.classList.remove('on'));ch.classList.add('on');const m=document.getElementById('manualArea');if(m)m.style.display=ch.dataset.split==='manual'?'block':'none'}});
   document.querySelectorAll('.addPay').forEach(btn=>btn.onclick=e=>{const row=e.currentTarget.closest('.payRow');const box=row.nextElementSibling;const paymentsBox=box.querySelector('.payments');const item=document.createElement('div');item.className='paymentItem';item.innerHTML='<input class="input partAmt" type="number" placeholder="還款金額"><input class="input partNote" placeholder="備註 / 時間，例如 搭車">';paymentsBox.appendChild(item)});
 }
-
-async function fileToBase64(file){return await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.toString());r.onerror=rej;r.readAsDataURL(file)})}
 
 async function saveMember(){
   const name=$('#nm').value.trim();if(!name)return toast('請填名稱');
@@ -257,13 +298,9 @@ function saveSnapshot(){
 }
 
 async function uploadReceipt(){
-  const f=document.getElementById('receiptFile')?.files?.[0];
-  if(!f)return toast('請先揀相片');
-  const data=await fileToBase64(f);
-  window.__receiptData=data;
-  const p=document.getElementById('receiptPreview');
-  if(p){p.src=data;p.style.display='block'}
-  toast('相片已載入，未鎖畫面');
+  if(!window.__receiptData)return toast('請先揀相片');
+  console.log("壓縮後嘅 Base64 長度:", window.__receiptData.length);
+  toast('相片已載入，準備接 API');
 }
 
 function copyLink(){navigator.clipboard.writeText(location.origin+location.pathname).then(()=>toast('已複製連結'))}
@@ -272,7 +309,7 @@ function boot(){bindGlobal();loadRates().then(()=>render());setInterval(()=>load
 boot();
 </script>
 </body>
-</html>'''
-Path('output').mkdir(exist_ok=True)
-Path('output/index.html').write_text(content, encoding='utf-8')
-print('written', len(content))
+</html>
+
+```
+，
