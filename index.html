@@ -1,4 +1,3 @@
-html
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -89,7 +88,6 @@ const key='tt_'+APP.tripId;
 function loadState(){
   try{
     let s = JSON.parse(localStorage.getItem(key));
-    // 加入全新 transfers 數組負責處理還款
     return s ? {members:[], expenses:[], snapshots:[], transfers:[], me:'', ...s} : {members:[], expenses:[], snapshots:[], transfers:[], me:''};
   }catch{
     return {members:[], expenses:[], snapshots:[], transfers:[], me:''};
@@ -102,6 +100,20 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 function nowISO(){const d=new Date(),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`}
 function initials(n){return(n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'?'}
 function findCat(id){return CATS.find(c=>c[0]===id)||CATS[CATS.length-1]}
+
+// --- 新增：檢查係咪處於鎖定期間 (6月11日 - 6月25日) ---
+function checkLock(dtStr) {
+  // 檢查一：現實時間
+  const today = new Date();
+  const isTodayLocked = today.getMonth() === 5 && today.getDate() >= 11 && today.getDate() <= 25;
+  // 檢查二：筆紀錄嘅時間
+  let isRecordLocked = false;
+  if (dtStr) {
+    const rDate = new Date(dtStr);
+    isRecordLocked = rDate.getMonth() === 5 && rDate.getDate() >= 11 && rDate.getDate() <= 25;
+  }
+  return isTodayLocked || isRecordLocked;
+}
 
 async function loadRates(){
   if(Date.now()-rateTs<3600000&&rates)return rates;
@@ -116,11 +128,9 @@ function snapshots(){return state.snapshots||[]}
 function transfers(){return state.transfers||[]}
 function activeExpenses(){return expenses().filter(e=>!e.deleted)}
 
-// 全新精準結算引擎：計算所有消費、舊快照、以及新嘅還款紀錄
 function calcBalances(){
   const bal=Object.fromEntries(members().map(m=>[m.id,0]));
   
-  // 1. 計算消費 (Expenses)
   activeExpenses().forEach(e=>{
     if(e.type==='personal')return;
     const amt=+e.jpy||toJpy(e.amount,e.currency);
@@ -140,7 +150,6 @@ function calcBalances(){
     }
   });
 
-  // 2. 兼容舊版快照資料 (如果有的話)
   const settledMap={};
   snapshots().forEach(s=>(s.rows||[]).forEach(r=>{
     const k=r.from+'->'+r.to;
@@ -152,7 +161,6 @@ function calcBalances(){
     if(bal[t]!=null)bal[t]-=+v;
   });
 
-  // 3. 計算最新還款 (Transfers) - 完美解決部分還款問題
   transfers().forEach(t => {
      if(bal[t.from]!=null) bal[t.from] += t.jpy;
      if(bal[t.to]!=null) bal[t.to] -= t.jpy;
@@ -177,10 +185,35 @@ function transfersFromBalance(b){
 
 function moneyText(jpy){const hk=(!rates||!rates.rates.HKD)?'':` (HK$${Math.round(jpy*rates.rates.HKD)})`;return `¥${Math.round(jpy)}${hk}`}
 
+function transferRow(t, showPayBtn=false){
+  const f=members().find(m=>m.id===t.from)||{name:'?',color:'#f97316'};
+  const to=members().find(m=>m.id===t.to)||{name:'?',color:'#f97316'};
+  return `
+  <div class="card" style="margin-bottom:12px; padding:18px 16px; border:1px solid rgba(249,115,22,0.25); background:linear-gradient(to bottom right, rgba(255,255,255,0.03), rgba(249,115,22,0.06)); box-shadow:0 4px 20px rgba(0,0,0,0.2);">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+       <div style="display:flex; align-items:center; gap:12px;">
+          <div style="text-align:center;">
+             <div class="avatar" style="width:44px; height:44px; margin:0 auto; border:2px solid ${f.color||'#f97316'}; box-shadow:0 0 10px rgba(0,0,0,0.5);">${f.avatar&&f.avatar.startsWith('data:image')?`<img src="${f.avatar}">`:initials(f.name)}</div>
+             <div class="name" style="margin-top:6px; color:${f.color||'#f97316'}; font-size:13px;">${esc(f.name)}</div>
+          </div>
+          <div style="color:#ef4444; font-size:22px; font-weight:900; margin-bottom:20px; animation: pulse 2s infinite;">➔</div>
+          <div style="text-align:center;">
+             <div class="avatar" style="width:44px; height:44px; margin:0 auto; border:2px solid ${to.color||'#f97316'}; box-shadow:0 0 10px rgba(0,0,0,0.5);">${to.avatar&&to.avatar.startsWith('data:image')?`<img src="${to.avatar}">`:initials(to.name)}</div>
+             <div class="name" style="margin-top:6px; color:${to.color||'#f97316'}; font-size:13px;">${esc(to.name)}</div>
+          </div>
+       </div>
+       <div class="right" style="display:flex; flex-direction:column; align-items:flex-end;">
+          <div class="muted" style="margin-bottom:4px;">爭 (要畀)</div>
+          <div class="amt" style="font-size:22px; color:#ef4444; font-weight:900; line-height:1.1; white-space:nowrap;">${moneyText(t.amt)}</div>
+          ${showPayBtn?`<button class="b" style="width:auto; padding:6px 16px; min-height:0; border-radius:10px; font-size:14px; margin-top:12px; background:linear-gradient(135deg,#f97316,#dc2626); box-shadow:0 4px 12px rgba(239,68,68,0.4);" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">💸 立即還款</button>`:''}
+       </div>
+    </div>
+  </div>`;
+}
+
 function render(){
   const ex=activeExpenses(), allBal=calcBalances(), allTx=transfersFromBalance(allBal), total=ex.reduce((s,e)=>s+(+e.jpy||toJpy(e.amount,e.currency)),0);
   
-  // 貢獻榜：正數代表大債主(墊支多)，負數代表爭人錢
   const board=members().map(m=>{ return {...m, total: allBal[m.id]}; }).sort((a,b)=>b.total-a.total);
   
   const catMap=Object.fromEntries(CATS.map(c=>[c[0],0]));
@@ -190,7 +223,7 @@ function render(){
   let html=`<div class="top"><div class="title">旅行分帳 · 6/11 - 6/25</div><div class="hero"><div><h1>${moneyText(total)}</h1><div class="sub">${ex.length} 筆消費 · ${members().length} 位旅伴</div></div><div class="status">● 匯率已更新</div></div></div><div class="content">`;
   
   if(tab==='home'){
-    html+=`<div class="section"><h2>目前總欠款</h2><div class="card">${allTx.length?allTx.map(t=>transferRow(t, false, true)).join(''):'<div class="row"><div class="name" style="color:#34d399">✓ 全部已結清，無人爭人錢！</div></div>'}</div><div class="ms" style="margin-top:6px">撳下面 💰 結帳 可以分次還錢</div></div>`;
+    html+=`<div class="section"><h2>目前總欠款</h2>${allTx.length?allTx.map(t=>transferRow(t, false)).join(''):'<div class="card"><div class="row"><div class="name" style="color:#34d399">✓ 全部已結清，無人爭人錢！</div></div></div>'}<div class="ms" style="margin-top:8px; text-align:center;">撳下面 💰 結帳 可以分次還錢</div></div>`;
     html+=`<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="card">${board.length?board.map((m,i)=>{
       let statusTxt = m.total > 1 ? '大債主 🔥' : m.total < -1 ? '爭人錢 💸' : '已結清 💚';
       let color = m.total > 1 ? '#34d399' : m.total < -1 ? '#ef4444' : '#8a8a8a';
@@ -213,7 +246,7 @@ function render(){
   }
   
   if(tab==='settle'){
-    html+=`<div class="section"><h2>目前總欠款 (剩餘要還)</h2><div class="card">${allTx.length?allTx.map(t=>transferRow(t, true)).join(''):'<div class="row"><div class="name" style="color:#34d399">✓ 全部已結清，無人爭人錢！</div></div>'}</div><div class="ms" style="margin-top:6px">支援分開多次還款，還幾多扣幾多，完美平帳！</div><div style="margin-top:10px" class="topbtns"><button class="b" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div>`;
+    html+=`<div class="section"><h2>目前總欠款 (剩餘要還)</h2>${allTx.length?allTx.map(t=>transferRow(t, true)).join(''):'<div class="card"><div class="row"><div class="name" style="color:#34d399">✓ 全部已結清，無人爭人錢！</div></div></div>'}<div style="margin-top:16px" class="topbtns"><button class="b2" style="background:rgba(255,255,255,.05);" onclick="openSheet('addTransfer')">＋ 新增其他還款</button></div></div>`;
     
     html+=`<div class="section"><h2>還款紀錄</h2><div class="card">`;
     if(transfers().length) {
@@ -241,15 +274,6 @@ function render(){
   }
   html+=`</div><div class="nav"><div class="navin"><button class="navbtn ${tab==='home'?'on':''}" onclick="setTab('home')">🏠<div class="small">總覽</div></button><button class="navbtn ${tab==='expenses'?'on':''}" onclick="setTab('expenses')">🧾<div class="small">消費</div></button><button class="navbtn" onclick="openSheet('addExpense')"><div class="fab">+</div></button><button class="navbtn ${tab==='settle'?'on':''}" onclick="setTab('settle')">💰<div class="small">結帳</div></button><button class="navbtn ${tab==='members'?'on':''}" onclick="setTab('members')">👥<div class="small">旅伴</div></button></div></div>`;
   $('#app').innerHTML=html;
-}
-
-function rateBox(){if(!rates)return'<div class="section"><h2>匯率</h2><div class="card"><div class="row"><div class="muted">未能取得匯率，已用本地快取或暫時以原幣顯示</div></div></div></div>';const ks=['HKD','USD','CNY','KRW'];return `<div class="section"><h2>匯率</h2><div class="card">${ks.filter(k=>rates.rates[k]).map(k=>`<div class="row"><div style="flex:1"><div class="name">1 JPY = ${rates.rates[k].toFixed(4)} ${k}</div><div class="muted">自動更新，1 小時 cache</div></div></div>`).join('')}</div></div>`}
-
-// 更新：支援「還款」掣
-function transferRow(t, showPayBtn=false, readOnly=false){
-  const f=members().find(m=>m.id===t.from)||{name:'?',color:'#f97316'};
-  const to=members().find(m=>m.id===t.to)||{name:'?',color:'#f97316'};
-  return`<div class="row"><div class="avatar">${f.avatar&&f.avatar.startsWith('data:image')?`<img src="${f.avatar}">`:initials(f.name)}</div><div style="flex:1"><div class="name"><span style="color:${f.color||'#f97316'}">${esc(f.name)}</span> 仲爭 <span style="color:${to.color||'#f97316'}">${esc(to.name)}</span></div><div class="muted">轉帳建議</div></div><div class="amt">${moneyText(t.amt)}</div>${showPayBtn?`<button class="b2" style="width:auto;padding:0 12px;margin-left:8px;font-size:13px" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>`:''}</div>`
 }
 
 function expenseRow(e){const cat=findCat(e.cat),payer=members().find(m=>m.id===e.paidBy)||{name:'?',color:'#f97316'};return`<div class="listTop" onclick="openExpense('${e.id}')"><div style="display:flex;gap:10px;min-width:0;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:${cat[3]}22;display:grid;place-items:center;flex:0 0 auto">${cat[2]}</div><div style="min-width:0"><div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.name)}</div><div class="muted"><span style="color:${payer.color}">${esc(payer.name)}</span>${e.location?' · '+esc(e.location):''}${e.type==='personal'?' · 個人':''}</div></div></div><div class="right"><div class="amt">${moneyText(+e.amount||0)}</div></div></div>`}
@@ -281,7 +305,6 @@ function sheetBody(){
 }
 
 function forms(){
-  // --- 新增：獨立還錢 UI ---
   if(sheet==='addTransfer'){
     let data = {};
     try { if(editId) data = JSON.parse(editId); } catch(e){}
@@ -315,7 +338,7 @@ function forms(){
     }
     return `<div class="k">請輸入刪除密碼以移除 <span style="color:${m?.color||'#fff'}">${esc(m?.name||'')}</span></div>
             ${warningHtml}
-            <input id="delPwd" type="password" class="input" placeholder="密碼 (chiu)">
+            <input id="delPwd" type="password" class="input" placeholder="請輸入密碼">
             <div style="height:12px"></div>
             <button class="b" style="background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 8px 24px rgba(239,68,68,0.3)" onclick="confirmDelMember()">強制確定刪除</button>`;
   }
@@ -424,14 +447,31 @@ function saveExpense(){
   const currency=$('#ecur').value,cat=document.querySelector('[data-cat].on')?.dataset.cat||'food',type=document.querySelector('[data-type].on')?.dataset.type||'shared',paidBy=$('#epay').value,sharedWith=[...document.querySelectorAll('[data-share]')].filter(x=>x.checked).map(x=>x.dataset.share),splitMode=document.querySelector('[data-split].on')?.dataset.split||'equal',splits=Object.fromEntries([...document.querySelectorAll('.split')].map(i=>[i.dataset.mid,+i.value||0]));
   if(splitMode==='manual'){const s=Object.values(splits).reduce((a,b)=>a+(+b||0),0);if(Math.abs(s-amount)>1)return toast('手動分帳總和唔啱')}
   const dt=new Date($('#edt').value).toISOString();
+  
   const obj={id,name,amount,currency,cat,type,paidBy,sharedWith,splitMode,splits,location:$('#eloc').value.trim(),note:$('#enote').value.trim(),dt,jpy:toJpy(amount,currency),deleted:false,comments:[]};
   if(editId){const i=state.expenses.findIndex(x=>x.id===editId);state.expenses[i]=obj;editId=null}else state.expenses.unshift(obj);
   saveState(state);toast('已儲存');closeSheet();render();
 }
-function startEditExpense(id){editId=id;sheet='editExpense';renderSheet()}
-function delExpense(id){const e=state.expenses.find(x=>x.id===id);if(!e)return;e.deleted=true;saveState(state);toast('已移去回收箱');closeSheet();render()}
 
-// 新增：儲存還款紀錄
+// --- 鎖定機制實裝 (只限刪除付款/還款紀錄) ---
+function delExpense(id){
+  const e=state.expenses.find(x=>x.id===id);
+  if(!e)return;
+  if(checkLock(e.dt)) return toast('⚠️ 系統鎖定：6月11日至25日行程期間，嚴禁刪除付款紀錄！');
+  e.deleted=true;
+  saveState(state);toast('已移去回收箱');closeSheet();render();
+}
+
+function deleteTransfer(id) {
+   const t = state.transfers.find(x=>x.id===id);
+   if(t && checkLock(t.dt)) return toast('⚠️ 系統鎖定：6月11日至25日行程期間，嚴禁刪除還款紀錄！');
+   if(!confirm('確定要刪除呢筆還款紀錄？')) return;
+   state.transfers = state.transfers.filter(x => x.id !== id);
+   saveState(state);
+   toast('已刪除還款紀錄');
+   render();
+}
+
 function saveTransfer() {
    const from = $('#tFrom').value;
    const to = $('#tTo').value;
@@ -461,15 +501,6 @@ function saveTransfer() {
    render();
 }
 
-// 新增：刪除錯誤嘅還款紀錄
-function deleteTransfer(id) {
-   if(!confirm('確定要刪除呢筆還款紀錄？')) return;
-   state.transfers = state.transfers.filter(t => t.id !== id);
-   saveState(state);
-   toast('已刪除還款紀錄');
-   render();
-}
-
 async function uploadReceipt(){
   if(!window.__receiptData)return toast('請先揀相片');
   console.log("壓縮後嘅 Base64 長度:", window.__receiptData.length);
@@ -490,4 +521,3 @@ boot();
 </script>
 </body>
 </html>
-
