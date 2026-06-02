@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -163,7 +164,9 @@ function expenseRow(e){const cat=findCat(e.cat),payer=members().find(m=>m.id===e
 
 function setTab(t){tab=t;render()}
 function switchMe(id){state.me=id;saveState(state);toast('已切換身份');render()}
-function openSheet(s){sheet=s;editId=null;renderSheet()}
+
+// 更新：支援帶入 id 參數
+function openSheet(s, id=null){sheet=s;editId=id;renderSheet()}
 function openExpense(id){sheet='viewExpense';editId=id;renderSheet()}
 function openSnap(id){sheet='viewSnap';editId=id;renderSheet()}
 function closeSheet(){sheet='';editId=null;document.querySelector('.sheetov')?.remove()}
@@ -175,10 +178,30 @@ function renderSheet(){
   w.innerHTML=`<div class="sheet"><div class="handle"></div><div class="sheethead"><div style="font-weight:800;font-size:18px">${sheetTitle()}</div><button class="x" onclick="closeSheet()">×</button></div><div class="sheetbody">${sheetBody()}</div></div>`;
   document.body.appendChild(w);bindSheet();
 }
-function sheetTitle(){return{addExpense:'新增消費',editExpense:'修改消費',viewExpense:'消費詳情',addMember:'新增旅伴',manualSettle:'記錄當場結帳',settings:'設定',receipt:'AI 收據',viewSnap:'結帳記錄'}[sheet]||''}
-function sheetBody(){const ex=expenses().find(x=>x.id===editId),sn=snapshots().find(x=>x.id===editId);if(['addMember','addExpense','editExpense','manualSettle','receipt'].includes(sheet))return forms();if(sheet==='viewExpense'&&ex)return viewExpense(ex);if(sheet==='viewSnap'&&sn)return viewSnap(sn);if(sheet==='settings')return settings();return''}
+
+// 更新：加咗 delMemberPwd 標題
+function sheetTitle(){return{addExpense:'新增消費',editExpense:'修改消費',viewExpense:'消費詳情',addMember:'新增旅伴',manualSettle:'記錄當場結帳',settings:'設定',receipt:'AI 收據',viewSnap:'結帳記錄',delMemberPwd:'刪除旅伴'}[sheet]||''}
+
+function sheetBody(){
+  const ex=expenses().find(x=>x.id===editId),sn=snapshots().find(x=>x.id===editId);
+  // 更新：如果係密碼視窗，亦都經由 forms() 處理
+  if(['addMember','addExpense','editExpense','manualSettle','receipt','delMemberPwd'].includes(sheet))return forms();
+  if(sheet==='viewExpense'&&ex)return viewExpense(ex);
+  if(sheet==='viewSnap'&&sn)return viewSnap(sn);
+  if(sheet==='settings')return settings();
+  return'';
+}
 
 function forms(){
+  // --- 新增：密碼輸入介面 ---
+  if(sheet==='delMemberPwd'){
+    const m = members().find(x=>x.id===editId);
+    return `<div class="k">請輸入刪除密碼以移除 ${esc(m?.name||'')}</div>
+            <input id="delPwd" type="password" class="input" placeholder="輸入密碼">
+            <div style="height:12px"></div>
+            <button class="b" onclick="confirmDelMember()">確定刪除</button>`;
+  }
+
   if(sheet==='addMember')return`<div class="k">名稱</div><input id="nm" class="input" placeholder="旅伴名稱"><div class="k" style="margin-top:12px">顏色</div><div class="colorRow"><div class="colorSwatch" data-val="#f97316" style="background:#f97316"></div><div class="colorSwatch" data-val="#ef4444" style="background:#ef4444"></div><div class="colorSwatch" data-val="#a78bfa" style="background:#a78bfa"></div><input id="colVal" class="colorInput" type="color" value="#f97316"></div><div class="k" style="margin-top:12px">頭像（上傳或貼 base64，可留空）</div><input id="avatarFile" type="file" accept="image/*" class="input"><div style="height:8px"></div><img id="avatarPreview" style="display:none;width:72px;height:72px;border-radius:16px;object-fit:cover;border:1px solid rgba(255,255,255,.1)"><div style="height:8px"></div><textarea id="av" class="textarea" rows="2" placeholder="emoji 或 base64"></textarea><div style="height:12px"></div><button class="b" onclick="saveMember()">新增旅伴</button>`;
   if(sheet==='addExpense'||sheet==='editExpense'){
     const e=sheet==='editExpense'?expenses().find(x=>x.id===editId):null,sw=e?.sharedWith?.length?e.sharedWith:members().map(m=>m.id);
@@ -273,17 +296,23 @@ function delMember(id){
   const involved = activeExpenses().some(e => e.paidBy === id || (e.sharedWith && e.sharedWith.includes(id)));
   if(involved) return toast('呢位旅伴已經有消費紀錄，唔可以刪除！');
   
-  // 呢度加咗密碼檢查，入啱 chiu 先至會刪
-  const pwd = prompt(`請輸入刪除密碼以移除 ${m.name}：`);
+  // 更新：用 UI 彈窗代替會被 block 嘅 browser prompt
+  openSheet('delMemberPwd', id);
+}
+
+// --- 新增：處理確認刪除 ---
+function confirmDelMember(){
+  const pwd = $('#delPwd').value;
   if(pwd !== 'chiu') {
-    if(pwd !== null) toast('密碼錯誤，無法刪除！');
+    toast('密碼錯誤，無法刪除！');
     return;
   }
-  
+  const id = editId; // 從 openSheet 傳入嘅 ID
   state.members = state.members.filter(x => x.id !== id);
   if(state.me === id) state.me = state.members[0]?.id || '';
   saveState(state);
   toast('已刪除旅伴');
+  closeSheet();
   render();
 }
 
@@ -321,11 +350,11 @@ async function uploadReceipt(){
 }
 
 function copyLink(){navigator.clipboard.writeText(location.origin+location.pathname).then(()=>toast('已複製連結'))}
-function bindGlobal(){window.setTab=setTab;window.openSheet=openSheet;window.openExpense=openExpense;window.openSnap=openSnap;window.closeSheet=closeSheet;window.switchMe=switchMe;window.saveMember=saveMember;window.delMember=delMember;window.saveExpense=saveExpense;window.startEditExpense=startEditExpense;window.delExpense=delExpense;window.saveSnapshot=saveSnapshot;window.copyLink=copyLink;window.uploadReceipt=uploadReceipt}
+function bindGlobal(){window.setTab=setTab;window.openSheet=openSheet;window.openExpense=openExpense;window.openSnap=openSnap;window.closeSheet=closeSheet;window.switchMe=switchMe;window.saveMember=saveMember;window.delMember=delMember;window.confirmDelMember=confirmDelMember;window.saveExpense=saveExpense;window.startEditExpense=startEditExpense;window.delExpense=delExpense;window.saveSnapshot=saveSnapshot;window.copyLink=copyLink;window.uploadReceipt=uploadReceipt}
 function boot(){bindGlobal();loadRates().then(()=>render());setInterval(()=>loadRates().then(()=>render()),3600000)}
 boot();
 </script>
 </body>
 </html>
 
-
+```
