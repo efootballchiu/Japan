@@ -7,24 +7,20 @@
 <meta name="theme-color" content="#000000">
 <title>旅行分帳 Pro</title>
 <style>
-/* 核心排版：鎖死 X 軸，解決 iPad 左右飄移問題 */
 *{box-sizing:border-box;touch-action:manipulation;margin:0;padding:0}
-html,body{height:100%;width:100%;overflow-x:hidden;background:#000;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+html,body{height:100%;width:100vw;overflow-x:hidden;background:#000;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 body{overscroll-behavior-y:none}
 #app{height:100vh;width:100%;display:flex;flex-direction:column;max-width:600px;margin:0 auto;position:relative;z-index:10;overflow-x:hidden}
 
 /* 🍎 Apple Siri 級動態呼吸漸變光暈 */
-.bg-mesh{
-    position:fixed;inset:-30%;z-index:0;pointer-events:none;
+.bg-mesh{position:fixed;inset:-30%;z-index:0;pointer-events:none;
     background:
-        radial-gradient(circle at 20% 30%, rgba(255, 42, 95, 0.35) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(88, 86, 214, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 20% 80%, rgba(255, 149, 0, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(50, 173, 230, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(0, 199, 190, 0.25) 0%, transparent 60%);
-    filter:blur(60px);
-    animation:breath 12s ease-in-out infinite alternate;
-}
+        radial-gradient(circle at 20% 30%, rgba(255, 42, 95, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(88, 86, 214, 0.45) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(255, 149, 0, 0.35) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(50, 173, 230, 0.45) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(0, 199, 190, 0.3) 0%, transparent 60%);
+    filter:blur(60px);animation:breath 12s ease-in-out infinite alternate;}
 @keyframes breath {
     0% { transform: scale(1) translate(0, 0); }
     50% { transform: scale(1.05) translate(2%, 3%); }
@@ -41,7 +37,7 @@ body{overscroll-behavior-y:none}
 
 .section{margin:28px 0}
 .section h2{font-size:13px;color:#999;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 12px 4px;font-weight:700}
-.card{background:rgba(255,255,255,0.08);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid rgba(255,255,255,0.15);border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.25);transition:transform 0.2s}
+.card{background:rgba(255,255,255,0.06);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid rgba(255,255,255,0.12);border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.25);transition:transform 0.2s}
 .row,.listTop{display:flex;align-items:center;gap:14px;padding:18px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
 .listTop{justify-content:space-between}
 .row:active,.listTop:active{background:rgba(255,255,255,0.1)}
@@ -58,7 +54,7 @@ body{overscroll-behavior-y:none}
 .bar{height:6px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden}
 .bar>div{height:100%;border-radius:inherit;transition:width 0.5s ease-out}
 
-.nav{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(env(safe-area-inset-bottom) + 16px);background:rgba(10,10,10,0.4);backdrop-filter:blur(40px) saturate(250%);-webkit-backdrop-filter:blur(40px) saturate(250%);border-top:1px solid rgba(255,255,255,0.15);z-index:40}
+.nav{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(env(safe-area-inset-bottom) + 16px);background:rgba(15,15,15,0.3);backdrop-filter:blur(50px) saturate(250%);-webkit-backdrop-filter:blur(50px) saturate(250%);border-top:1px solid rgba(255,255,255,0.1);z-index:40}
 .navin{max-width:560px;margin:0 auto;display:flex;gap:4px;align-items:stretch}
 .navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#888;background:transparent;border-radius:16px;padding:10px 4px;border:0;transition:all 0.2s;cursor:pointer}
 .navbtn:active{transform:scale(0.92);background:rgba(255,255,255,0.08)}
@@ -67,28 +63,32 @@ body{overscroll-behavior-y:none}
 .fab{width:64px;height:64px;border-radius:50%;margin-top:-44px;background:linear-gradient(135deg,#f97316,#dc2626);box-shadow:0 12px 28px rgba(249,115,22,0.4);display:grid;place-items:center;color:#fff;font-size:32px;font-weight:300;border:5px solid #000;position:relative;z-index:2;transition:transform 0.2s}
 .navbtn:active .fab{transform:scale(0.9)}
 
-.sheetov{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.3s}
+/* 🍎 Apple 級玻璃彈出視窗 */
+.sheetov{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:flex-end;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .sheetov.on{opacity:1;pointer-events:auto}
-.sheet{width:100%;max-width:600px;background:rgba(30,30,30,0.65);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);border:1px solid rgba(255,255,255,0.15);border-radius:32px 32px 0 0;max-height:92vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);box-shadow:0 -10px 40px rgba(0,0,0,0.6);overflow-x:hidden}
+.sheet{width:100%;max-width:600px;background:rgba(20,20,20,0.45);backdrop-filter:blur(60px) saturate(250%);-webkit-backdrop-filter:blur(60px) saturate(250%);border:1px solid rgba(255,255,255,0.15);border-radius:32px 32px 0 0;max-height:92vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:0 -10px 50px rgba(0,0,0,0.5);overflow-x:hidden}
 .sheetov.on .sheet{transform:translateY(0)}
 .handle{width:42px;height:5px;border-radius:99px;background:rgba(255,255,255,0.3);margin:12px auto 8px}
 .sheethead{padding:8px 20px 16px;display:flex;justify-content:space-between;align-items:center}
 .sheetbody{padding:0 20px max(24px, env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;min-height:0}
 
-.input,.select,.textarea{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:16px;color:#f5f5f5;font:inherit;font-size:16px;outline:none;transition:all 0.2s}
-.input:focus,.select:focus,.textarea:focus{border-color:#f97316;background:rgba(255,255,255,0.12);box-shadow:0 0 0 4px rgba(249,115,22,0.2)}
+/* 🍎 iPad Safari 兼容修復：表單與按鈕 */
+.input,.select,.textarea{width:100%;background:rgba(255,255,255,0.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:14px 16px;color:#fff;font:inherit;font-size:16px;outline:none;transition:all 0.2s;-webkit-appearance:none;appearance:none;display:block}
+.input:focus,.select:focus,.textarea:focus{border-color:#f97316;background:rgba(255,255,255,0.1);box-shadow:0 0 0 4px rgba(249,115,22,0.2)}
+.select{background-image:url('data:image/svg+xml;utf8,<svg fill="%23aaa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');background-repeat:no-repeat;background-position:right 12px center;padding-right:40px}
+input[type="datetime-local"]{text-align:left}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 .chiprow{display:flex;gap:10px;max-width:100%;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .chiprow::-webkit-scrollbar{display:none}
-.chip{flex-shrink:0;padding:12px 18px;border-radius:16px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#ddd;font-weight:600;font-size:14px;transition:all 0.2s}
+.chip{flex-shrink:0;padding:12px 18px;border-radius:16px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#ddd;font-weight:600;font-size:14px;transition:all 0.2s}
 .chip.on{background:#f97316;border-color:#f97316;color:#fff;box-shadow:0 4px 16px rgba(249,115,22,0.35)}
 .chip:active{transform:scale(0.95)}
 
-.b{width:100%;border:0;border-radius:16px;min-height:56px;font-weight:700;font-size:16px;color:#fff;background:linear-gradient(135deg,#f97316,#dc2626);box-shadow:0 8px 24px rgba(249,115,22,0.3);transition:all 0.2s;cursor:pointer;letter-spacing:0.05em}
+.b{width:100%;border:0;border-radius:16px;min-height:56px;font-weight:700;font-size:16px;color:#fff;background:linear-gradient(135deg,#f97316,#dc2626);box-shadow:0 8px 24px rgba(249,115,22,0.3);transition:all 0.2s;cursor:pointer;letter-spacing:0.05em;-webkit-appearance:none;display:block}
 .b:active{transform:scale(0.96);box-shadow:0 4px 12px rgba(249,115,22,0.2)}
-.b2{width:100%;border:1px solid rgba(255,255,255,0.2);border-radius:16px;min-height:52px;font-weight:600;background:rgba(255,255,255,0.08);color:#f5f5f5;transition:all 0.2s;cursor:pointer}
-.b2:active{transform:scale(0.96);background:rgba(255,255,255,0.15)}
+.b2{width:100%;border:1px solid rgba(255,255,255,0.2);border-radius:16px;min-height:52px;font-weight:600;background:rgba(255,255,255,0.06);color:#f5f5f5;transition:all 0.2s;cursor:pointer;-webkit-appearance:none;display:block}
+.b2:active{transform:scale(0.96);background:rgba(255,255,255,0.12)}
 
 .topbtns,.seg{display:flex;gap:10px;flex-wrap:wrap}
 .seg button{flex:1}
@@ -104,7 +104,7 @@ body{overscroll-behavior-y:none}
 .colorRow{display:flex;gap:12px;align-items:center}
 .colorSwatch{width:40px;height:40px;border-radius:12px;border:2px solid transparent;cursor:pointer;flex:0 0 auto;display:grid;place-items:center;transition:transform 0.2s}
 .colorSwatch:active{transform:scale(0.85)}
-.colorInput{width:64px;height:40px;padding:4px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#f5f5f5}
+.colorInput{width:64px;height:40px;padding:4px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#f5f5f5;-webkit-appearance:none}
 @media (max-width:420px){.fab{width:56px;height:56px;margin-top:-38px;border-width:5px}}
 </style>
 </head>
@@ -360,7 +360,8 @@ async function uploadReceipt(){
   if(!window.__receiptData) return toast('請先選擇相片'); toast('AI 努力睇緊張單...');
   try{
     const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=請在此處輸入你的AIzaSy開頭的API_KEY`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:`閱讀收據，回傳純 JSON: {"amount":數字,"currency":"JPY或HKD","location":"商店名","items":"消費項目簡短字串"}`},{inline_data:{mime_type:"image/jpeg",data:window.__receiptData.split(',')[1]}}]}]})});
-    if(!r.ok) throw new Error(); const d=await r.json(), aiR=JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g,'').replace(/```/g,'').trim());
+    if(!r.ok) throw new Error(); const d=await r.json(), aiR=JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g,'').replace(/
+```/g,'').trim());
     openSheet('addExpense'); setTimeout(()=>{ if(aiR.items)$('#ename').value=aiR.items; if(aiR.amount)$('#eamt').value=aiR.amount; if(aiR.location)$('#eloc').value=aiR.location; if(aiR.currency)$('#ecur').value=aiR.currency; toast('✅ 識別成功！'); }, 150);
   } catch(e){ toast('❌ 識別失敗，請檢查 API Key'); }
 }
@@ -373,5 +374,8 @@ boot();
 </script>
 </body>
 </html>
+
+```
+```
 
 ```
