@@ -9,14 +9,34 @@
 /* 核心排版：鎖死 X 軸 */
 *{box-sizing:border-box;touch-action:manipulation;margin:0;padding:0}
 html,body{height:100%;width:100vw;overflow-x:hidden;background:#000;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
-body{overscroll-behavior-y:none}
-#app{height:100vh;width:100%;display:flex;flex-direction:column;max-width:600px;margin:0 auto;position:relative;z-index:10;overflow-x:hidden}
+body{overscroll-behavior-y:none; background-color:#000;}
 
-/* 🍎 Apple Siri 級動態呼吸漸變光暈 */
-.bg-mesh{position:fixed;inset:-30%;z-index:0;pointer-events:none;background:radial-gradient(circle at 20% 30%, rgba(255,42,95,0.4) 0%, transparent 50%),radial-gradient(circle at 80% 20%, rgba(88,86,214,0.45) 0%, transparent 50%),radial-gradient(circle at 20% 80%, rgba(255,149,0,0.35) 0%, transparent 50%),radial-gradient(circle at 80% 80%, rgba(50,173,230,0.45) 0%, transparent 50%),radial-gradient(circle at 50% 50%, rgba(0,199,190,0.3) 0%, transparent 60%);filter:blur(60px);animation:breath 12s ease-in-out infinite alternate}
-@keyframes breath{0%{transform:scale(1) translate(0,0)} 50%{transform:scale(1.05) translate(2%,3%)} 100%{transform:scale(0.95) translate(-2%,-2%)}}
+/* 🍏 iOS 景深縮放特效：當彈出視窗打開時，背景 App 會縮細退後 */
+#app{height:100vh;width:100%;display:flex;flex-direction:column;max-width:600px;margin:0 auto;position:relative;z-index:10;overflow-x:hidden;transform-origin:top center;transition:transform 0.5s cubic-bezier(0.32,0.72,0,1), border-radius 0.5s cubic-bezier(0.32,0.72,0,1), opacity 0.5s ease; background:transparent;}
+body.sheet-open #app{transform:scale(0.92) translateY(12px);border-radius:24px;overflow:hidden;opacity:0.65;pointer-events:none}
 
-.top,.content,.nav,.sheetov{position:relative;z-index:10}
+/* 🍎 Apple Siri 級動態流動呼吸漸變光暈 (優化 iPad 順暢度) */
+.bg-mesh{position:fixed;inset:-50%;z-index:0;pointer-events:none;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(255, 42, 95, 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(88, 86, 214, 0.45) 0%, transparent 40%),
+        radial-gradient(circle at 20% 80%, rgba(255, 149, 0, 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(50, 173, 230, 0.45) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(0, 199, 190, 0.3) 0%, transparent 50%);
+    background-size:200% 200%;
+    -webkit-filter:blur(50px);
+    filter:blur(50px);
+    animation:siriBreath 10s ease-in-out infinite alternate;
+    transition:transform 0.5s cubic-bezier(0.32,0.72,0,1);
+}
+@keyframes siriBreath{
+    0% { background-position: 0% 0%; transform: scale(1); }
+    50% { background-position: 100% 50%; transform: scale(1.05); }
+    100% { background-position: 0% 100%; transform: scale(0.95); }
+}
+body.sheet-open .bg-mesh { transform: scale(1.1); -webkit-filter:blur(60px); filter:blur(60px); }
+
+.top,.content,.nav{position:relative;z-index:10}
 .top{padding:calc(env(safe-area-inset-top) + 20px) 16px 12px;flex:0 0 auto}
 .title{font-size:14px;letter-spacing:0.12em;color:#f97316;font-weight:800;display:flex;justify-content:space-between;align-items:center}
 .status{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#34d399;background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);padding:4px 10px;border-radius:999px;font-weight:600}
@@ -27,7 +47,7 @@ body{overscroll-behavior-y:none}
 .section{margin:28px 0}
 .section h2{font-size:13px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 12px 4px;font-weight:700}
 
-/* 🍎 Apple 級玻璃卡片 (雙重邊框反光效果) */
+/* 🍎 Apple 級玻璃卡片 */
 .card{background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(32px) saturate(200%);backdrop-filter:blur(32px) saturate(200%);border:0.5px solid rgba(255,255,255,0.15);border-radius:24px;overflow:hidden;box-shadow:inset 0 1px 1px rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.25);transition:transform 0.2s}
 .row,.listTop{display:flex;align-items:center;gap:14px;padding:18px 16px;border-bottom:0.5px solid rgba(255,255,255,0.1)}
 .listTop{justify-content:space-between}
@@ -46,7 +66,9 @@ body{overscroll-behavior-y:none}
 .bar>div{height:100%;border-radius:inherit;transition:width 0.5s ease-out}
 
 /* 🍎 底部導覽列 */
-.nav{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(env(safe-area-inset-bottom) + 16px);background:rgba(20,20,20,0.5);-webkit-backdrop-filter:blur(40px) saturate(250%);backdrop-filter:blur(40px) saturate(250%);border-top:0.5px solid rgba(255,255,255,0.15);z-index:40}
+.nav{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(env(safe-area-inset-bottom) + 16px);background:rgba(20,20,20,0.5);-webkit-backdrop-filter:blur(40px) saturate(250%);backdrop-filter:blur(40px) saturate(250%);border-top:0.5px solid rgba(255,255,255,0.15);z-index:40;transition:transform 0.5s cubic-bezier(0.32,0.72,0,1)}
+body.sheet-open .nav{transform:translateY(100%)}
+
 .navin{max-width:560px;margin:0 auto;display:flex;gap:4px;align-items:stretch}
 .navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,0.4);background:transparent;border-radius:16px;padding:10px 4px;border:0;transition:all 0.2s;cursor:pointer}
 .navbtn:active{transform:scale(0.92);background:rgba(255,255,255,0.08)}
@@ -55,19 +77,19 @@ body{overscroll-behavior-y:none}
 .fab{width:64px;height:64px;border-radius:50%;margin-top:-44px;background:linear-gradient(135deg,#f97316,#dc2626);box-shadow:0 12px 28px rgba(249,115,22,0.4), inset 0 2px 4px rgba(255,255,255,0.3);display:grid;place-items:center;color:#fff;font-size:32px;font-weight:300;border:5px solid #111;position:relative;z-index:2;transition:transform 0.2s}
 .navbtn:active .fab{transform:scale(0.9)}
 
-/* 🍎 彈出視窗 Sheet (鎖定 X 軸) */
-.sheetov{position:fixed;inset:0;background:rgba(0,0,0,0.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.3s}
-.sheetov.on{opacity:1;pointer-events:auto}
-.sheet{width:100%;max-width:600px;background:rgba(28,28,30,0.75);-webkit-backdrop-filter:blur(50px) saturate(200%);backdrop-filter:blur(50px) saturate(200%);border:0.5px solid rgba(255,255,255,0.15);border-bottom:none;border-radius:36px 36px 0 0;max-height:92vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:inset 0 1px 1px rgba(255,255,255,0.15), 0 -10px 50px rgba(0,0,0,0.6);overflow-x:hidden}
+/* 🍏 彈出視窗 Sheet (物理彈簧特效 Spring Bounce) */
+.sheetov{position:fixed;inset:0;background:rgba(0,0,0,0);display:flex;align-items:flex-end;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.4s}
+.sheetov.on{opacity:1;pointer-events:auto;background:rgba(0,0,0,0.35)}
+.sheet{width:100%;max-width:600px;background:rgba(28,28,30,0.85);-webkit-backdrop-filter:blur(50px) saturate(200%);backdrop-filter:blur(50px) saturate(200%);border:0.5px solid rgba(255,255,255,0.15);border-bottom:none;border-radius:36px 36px 0 0;max-height:92vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.1);box-shadow:inset 0 1px 1px rgba(255,255,255,0.15), 0 -20px 60px rgba(0,0,0,0.7);overflow-x:hidden}
 .sheetov.on .sheet{transform:translateY(0)}
 .handle{width:42px;height:5px;border-radius:99px;background:rgba(255,255,255,0.3);margin:14px auto 10px}
 .sheethead{padding:8px 20px 16px;display:flex;justify-content:space-between;align-items:center}
 .sheetbody{padding:0 20px max(24px, env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;min-height:0}
 
-/* 🍎 表單與按鈕 (深色磨砂感) */
+/* 表單與按鈕 */
 .input,.select,.textarea{width:100%;background:rgba(118,118,128,0.24);border:0.5px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;color:#fff;font:inherit;font-size:16px;outline:none;transition:all 0.2s;-webkit-appearance:none;appearance:none;display:block}
 .input:focus,.select:focus,.textarea:focus{border-color:#f97316;background:rgba(118,118,128,0.35);box-shadow:0 0 0 4px rgba(249,115,22,0.2)}
-.select{background-image:url('data:image/svg+xml;utf8,<svg fill="%23aaa" height="24" viewBox="0 0 24 24" width="24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path d="M7 10l5 5 5-5z"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+.select{background-image:url('data:image/svg+xml;utf8,<svg fill="%23aaa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
 input[type="datetime-local"]{text-align:left}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
@@ -101,6 +123,7 @@ input[type="datetime-local"]{text-align:left}
 </style>
 </head>
 <body>
+<!-- 全局 Apple 級漸變呼吸光暈 -->
 <div class="bg-mesh"></div>
 <div id="app"></div>
 <div id="toast" class="toast"></div>
@@ -286,14 +309,16 @@ function openTransfer(from, to, amt) { openSheet('addTransfer', JSON.stringify({
 
 function closeSheet() {
     const sh = document.querySelector('.sheetov'); if(!sh) return;
-    sh.classList.remove('on'); setTimeout(() => { sh.remove(); sheet = ''; editId = null; }, 300);
+    sh.classList.remove('on'); document.body.classList.remove('sheet-open');
+    setTimeout(() => { sh.remove(); sheet = ''; editId = null; }, 400);
 }
 
 function renderSheet() {
     if(!sheet) return closeSheet(); const eSh = document.querySelector('.sheetov'); if(eSh) eSh.remove();
     const w = document.createElement('div'); w.className = 'sheetov'; w.onclick = e => { if(e.target === w) closeSheet(); };
     w.innerHTML = `<div class="sheet"><div class="handle"></div><div class="sheethead"><div style="font-weight:800;font-size:22px">${sheetTitle()}</div><button class="x" onclick="closeSheet()">×</button></div><div class="sheetbody">${sheetBody()}</div></div>`;
-    document.body.appendChild(w); bindSheet(); void w.offsetWidth; w.classList.add('on');
+    document.body.appendChild(w); bindSheet(); void w.offsetWidth; 
+    w.classList.add('on'); document.body.classList.add('sheet-open');
 }
 
 function sheetTitle() { return {addExpense:'新增消費',editExpense:'修改消費',viewExpense:'消費詳情',addMember:'新增旅伴',settings:'設定',receipt:'AI 收據掃描',delMemberPwd:'刪除旅伴',addTransfer:'記錄還款'}[sheet] || ''; }
@@ -398,11 +423,9 @@ async function uploadReceipt() {
     try {
         const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=請在此處輸入你的AIzaSy開頭的API_KEY`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({contents:[{parts:[{text:`閱讀收據，回傳純 JSON: {"amount":數字,"currency":"JPY或HKD","location":"商店名","items":"消費項目簡短字串"}`},{inline_data:{mime_type:"image/jpeg",data:window.__receiptData.split(',')[1]}}]}]}) });
         if(!r.ok) throw new Error(); const d = await r.json();
-        
-        let aiText = d.candidates[0].content.parts[0].text;
-        aiText = aiText.replace(new RegExp('```json', 'g'), '').replace(new RegExp('```', 'g'), '').trim();
-        const aiR = JSON.parse(aiText);
-        
+        const aiText = d.candidates[0].content.parts[0].text;
+        const aiR = JSON.parse(aiText.replace(/```json/g,'').replace(/
+```/g,'').trim());
         openSheet('addExpense'); setTimeout(() => { if(aiR.items) $('#ename').value = aiR.items; if(aiR.amount) $('#eamt').value = aiR.amount; if(aiR.location) $('#eloc').value = aiR.location; if(aiR.currency) $('#ecur').value = aiR.currency; toast('✅ 識別成功！'); }, 150);
     } catch(e) { toast('❌ 識別失敗，請檢查 API Key'); }
 }
@@ -415,5 +438,8 @@ boot();
 </script>
 </body>
 </html>
+
+```
+```
 
 ```
