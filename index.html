@@ -7,197 +7,187 @@
 <meta name="theme-color" content="#000000">
 <title>日本GOGOGO</title>
 <style>
-/* 核心排版：徹底封印 iOS 藍色選取框、長按選單，解決高度跳動 */
+/* 核心排版：防選取、防預設點擊反光，回歸最穩定架構 */
 *{box-sizing:border-box;touch-action:manipulation;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input, textarea, .select {-webkit-user-select:auto;user-select:auto;}
-html,body{height:100%;height:100dvh;width:100vw;overflow:hidden;background:#000;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+html,body{height:100%;width:100vw;overflow:hidden;background:#0c0c0e;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
 
-/* 🍏 iOS 景深縮放特效：將主容器與底部 Nav 完全分離 */
-#app-container{height:100%;width:100%;display:flex;flex-direction:column;position:relative;z-index:10;transform-origin:top center;transition:transform 0.4s cubic-bezier(0.32,0.72,0,1), border-radius 0.4s ease, opacity 0.4s ease; background:transparent; will-change:transform, opacity}
-body.sheet-open #app-container{transform:scale(0.92) translateY(12px);border-radius:24px;opacity:0.6;pointer-events:none;overflow:hidden;}
-
-/* 🌈 真・Apple Siri 級高飽和液態呼吸光球 */
-.bg-orbs { position: fixed; inset: -20%; z-index: 0; overflow: hidden; background: #000; pointer-events: none; transition: opacity 0.4s ease; }
-.orb { position: absolute; border-radius: 50%; filter: blur(60px); -webkit-filter: blur(60px); opacity: 0.85; will-change: transform; mix-blend-mode: screen; }
-
-.orb-1 { width: 60vw; height: 60vw; background: #ff2a6d; top: 5%; left: 0%; animation: float1 14s ease-in-out infinite alternate; }
-.orb-2 { width: 75vw; height: 75vw; background: #5e5ce6; bottom: 5%; right: -5%; animation: float2 18s ease-in-out infinite alternate; }
-.orb-3 { width: 55vw; height: 55vw; background: #00c7be; top: 35%; left: 15%; animation: float3 16s ease-in-out infinite alternate; }
-.orb-4 { width: 50vw; height: 50vw; background: #ff9f0a; top: -5%; right: 10%; animation: float4 20s ease-in-out infinite alternate; }
-
-@keyframes float1 { 0% { transform: translate3d(0, 0, 0) scale(0.9); } 100% { transform: translate3d(30vw, 20vh, 0) scale(1.2); } }
-@keyframes float2 { 0% { transform: translate3d(0, 0, 0) scale(0.9); } 100% { transform: translate3d(-35vw, -20vh, 0) scale(1.1); } }
-@keyframes float3 { 0% { transform: translate3d(0, 0, 0) scale(0.9); } 100% { transform: translate3d(20vw, -15vh, 0) scale(1.3); } }
-@keyframes float4 { 0% { transform: translate3d(0, 0, 0) scale(0.9); } 100% { transform: translate3d(-25vw, 30vh, 0) scale(1.1); } }
-body.sheet-open .bg-orbs { opacity: 0.3; }
-
-/* 內部滾動區域：完美解決空氣滾動 */
-#app-content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: calc(env(safe-area-inset-bottom) + 120px); }
-#app-content::-webkit-scrollbar { display: none; }
+/* 主容器 */
+#app-container{height:100%;width:100%;display:flex;flex-direction:column;position:relative;z-index:10;background:#0c0c0e;transition:background 0.3s ease;}
 
 /* 頂部 Header */
-.top{padding:calc(env(safe-area-inset-top) + 20px) 16px 12px;max-width:600px;margin:0 auto;position:relative;z-index:20}
-.title{font-size:28px;letter-spacing:0.01em;color:#fff;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
-.status{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#30d158;background:rgba(48,209,88,0.15);border:0.5px solid rgba(48,209,88,0.3);padding:4px 10px;border-radius:999px;font-weight:700;box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
-.theme-btn{background:rgba(255,255,255,0.15);border:0.5px solid rgba(255,255,255,0.2);color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
-.theme-btn:active{transform:scale(0.85);background:rgba(255,255,255,0.3)}
+.top{padding:calc(env(safe-area-inset-top) + 20px) 16px 12px;max-width:600px;margin:0 auto;width:100%;flex-shrink:0;}
+.title{font-size:26px;color:#fff;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#30d158;background:rgba(48,209,88,0.15);border:1px solid rgba(48,209,88,0.3);padding:4px 10px;border-radius:999px;font-weight:700;}
+.theme-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.15s;}
+.theme-btn:active{transform:scale(0.85);background:rgba(255,255,255,0.3);}
 
-.content-inner{padding:0 16px;max-width:600px;margin:0 auto;position:relative;z-index:15}
-.section{margin:28px 0}
-.section h2{font-size:13px;color:rgba(255,255,255,0.7);text-transform:uppercase;margin:0 0 10px 12px;font-weight:600;letter-spacing:0.05em;text-shadow: 0 1px 4px rgba(0,0,0,0.5);}
+/* 滾動內容區 */
+#app-content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 0 16px; max-width: 600px; margin: 0 auto; width: 100%; padding-bottom: 120px; }
+#app-content::-webkit-scrollbar { display: none; }
 
-/* 🪞 真・Apple 級液態玻璃卡片 (Vision Pro 邊緣高光折射) */
-.glass-panel {
-    background: rgba(30, 30, 35, 0.35); /* 超高透明度，透出背景光 */
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    backdrop-filter: blur(40px) saturate(200%);
-    border-radius: 24px;
-    position: relative;
-    /* 靈魂所在：利用 inset shadow 做出極幼白光反射邊緣，代替傳統 border */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.2), 
-                inset 0 0 0 0.5px rgba(255, 255, 255, 0.05);
-    transition: transform 0.15s cubic-bezier(0.4,0,0.2,1);
+.section{margin:24px 0}
+.section h2{font-size:13px;color:#8e8e93;text-transform:uppercase;margin:0 0 10px 12px;font-weight:600;}
+
+/* 實用 iOS 風格卡片 */
+.solid-card {
+    background: #1c1c1e;
+    border-radius: 16px;
     overflow: hidden;
+    transition: background 0.15s ease;
 }
 
-.row, .listTop { display:flex; align-items:center; gap:14px; padding:18px 16px; position:relative; z-index:3; transition:background 0.15s, opacity 0.15s; }
+.row, .listTop { display: flex; align-items: center; gap: 14px; padding: 16px; position: relative; transition: background 0.15s ease; }
 .row:not(:last-child)::after, .listTop:not(:last-child)::after {
-    content: ""; position: absolute; bottom: 0; left: 16px; right: 16px; height: 0.5px; background: rgba(255,255,255,0.12);
+    content: ""; position: absolute; bottom: 0; left: 16px; right: 16px; height: 1px; background: rgba(255,255,255,0.08);
 }
-.listTop{justify-content:space-between}
-.row:active, .listTop:active { background: rgba(255,255,255,0.08); opacity: 0.85; }
+.listTop { justify-content: space-between; }
 
-.avatar{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#000;flex:0 0 auto;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.4);border:1.5px solid rgba(255,255,255,0.2);}
-.avatar img{width:100%;height:100%;object-fit:cover}
-.name{font-weight:700;font-size:17px;margin-bottom:4px;letter-spacing:0.01em;text-shadow: 0 2px 8px rgba(0,0,0,0.3);}
-.muted{color:rgba(235,235,245,0.6);font-size:14px;font-weight:500}
-.amt{font-weight:800;font-size:20px;letter-spacing:0.01em;text-shadow: 0 2px 10px rgba(0,0,0,0.3);}
+/* 🔥 修復：明確嘅點擊回饋，純黑模式都一定睇到！ */
+.row:active, .listTop:active { background: #3a3a3c !important; }
 
-.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#fdba74;font-size:11px;font-weight:700}
-.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:6px 12px;border-radius:10px;background:rgba(255,255,255,0.15);border:0.5px solid rgba(255,255,255,0.2);box-shadow: 0 2px 8px rgba(0,0,0,0.15);}
-.bar{height:6px;background:rgba(0,0,0,0.3);border-radius:999px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);border:0.5px solid rgba(255,255,255,0.1)}
-.bar>div{height:100%;border-radius:inherit;transition:width 0.5s ease-out;box-shadow:0 0 10px currentColor;}
+/* 🔥 修復：頭像底色同字色，確保全黑環境下清晰可見 */
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #ffffff; background: rgba(255,255,255,0.15); flex: 0 0 auto; overflow: hidden; border: 2px solid rgba(255,255,255,0.1); }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.name { font-weight: 700; font-size: 17px; margin-bottom: 4px; color: #fff; }
+.muted { color: #8e8e93; font-size: 14px; font-weight: 500; }
+.amt { font-weight: 800; font-size: 20px; color: #fff; }
 
-/* 🍎 iOS 18 懸浮島導覽列 (Floating Island Nav) - 絕對防跳動，永不離地 */
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); color: #fdba74; font-size: 11px; font-weight: 700; }
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+.bar { height: 6px; background: #333; border-radius: 999px; overflow: hidden; }
+.bar>div { height: 100%; border-radius: inherit; transition: width 0.5s ease-out; }
+
+/* 🍎 底部導覽列 (固定於底部) */
 .nav {
-    position: absolute; left: 16px; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 16px);
-    padding: 10px 12px;
-    background: rgba(30, 30, 35, 0.5);
-    -webkit-backdrop-filter: blur(50px) saturate(200%);
-    backdrop-filter: blur(50px) saturate(200%);
-    border-radius: 32px;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.5),
-                inset 0 1px 1px rgba(255,255,255,0.2),
-                inset 0 0 0 0.5px rgba(255,255,255,0.08);
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 12px 16px calc(env(safe-area-inset-bottom) + 12px);
+    background: rgba(28, 28, 30, 0.9);
+    -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 40;
-    transition: transform 0.4s cubic-bezier(0.32,0.72,0,1);
-    max-width: 560px; margin: 0 auto;
 }
-body.sheet-open .nav { transform: translateY(200%); }
+.navin { max-width: 560px; margin: 0 auto; display: flex; gap: 4px; align-items: stretch; }
+.navbtn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8e8e93; background: transparent; border-radius: 12px; padding: 8px 4px; border: 0; transition: all 0.15s; cursor: pointer; }
+.navbtn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); } 
+.navbtn.on { color: #f97316; }
+.navbtn .small { font-weight: 700; font-size: 11px; pointer-events: none; }
+.fab { width: 56px; height: 56px; border-radius: 50%; margin-top: -36px; background: linear-gradient(135deg, #ff9f0a, #ff453a); display: grid; place-items: center; color: #fff; font-size: 32px; font-weight: 300; border: 4px solid #1c1c1e; transition: transform 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.navbtn:active .fab { transform: scale(0.9); }
 
-.navin{display:flex;gap:4px;align-items:stretch;position:relative;z-index:5}
-.navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,0.5);background:transparent;border-radius:20px;padding:8px 4px;border:0;transition:all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);cursor:pointer;position:relative;z-index:1}
-.navbtn:active{transform:scale(0.8);background:rgba(255,255,255,0.1)} 
-.navbtn.on{color:#f97316;text-shadow:0 0 10px rgba(249,115,22,0.4)}
-.navbtn .small{font-weight:700;font-size:11px;pointer-events:none}
-.fab{width:64px;height:64px;border-radius:50%;margin-top:-40px;background:linear-gradient(135deg,#ff9f0a,#ff453a);box-shadow:0 10px 24px rgba(255,69,58,0.5), inset 0 2px 4px rgba(255,255,255,0.4);display:grid;place-items:center;color:#fff;font-size:32px;font-weight:300;border:4px solid #1c1c1e;position:relative;z-index:2;transition:transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
-.navbtn:active .fab{transform:scale(0.85) translateY(4px)}
-
-/* 🍏 彈出視窗 Sheet (透鏡玻璃) */
-.sheetov{position:fixed;inset:0;background:rgba(0,0,0,0);display:flex;align-items:flex-end;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.4s cubic-bezier(0.32,0.72,0,1)}
-.sheetov.on{opacity:1;pointer-events:auto;background:rgba(0,0,0,0.5)}
-.sheet{
-    width:100%; max-width:600px; max-height:92vh;
-    background:rgba(30, 30, 35, 0.65);
-    -webkit-backdrop-filter:blur(60px) saturate(200%);
-    backdrop-filter:blur(60px) saturate(200%);
-    border-radius:36px 36px 0 0;
-    box-shadow:0 -20px 60px rgba(0,0,0,0.8), 
-               inset 0 1px 1px rgba(255,255,255,0.3), 
-               inset 0 0 0 1px rgba(255,255,255,0.05);
-    display:flex;flex-direction:column;
-    transform:translateY(100%);
-    transition:transform 0.4s cubic-bezier(0.32,0.72,0,1);
-    position:relative; border:none; overflow-x:hidden;
+/* 🍏 彈出視窗 Sheet */
+.sheetov { position: fixed; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: flex-end; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.sheetov.on { opacity: 1; pointer-events: auto; background: rgba(0,0,0,0.6); }
+.sheet {
+    width: 100%; max-width: 600px; max-height: 92vh;
+    background: #1c1c1e;
+    border-radius: 24px 24px 0 0;
+    display: flex; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
 }
-.sheetov.on .sheet{transform:translateY(0)}
+.sheetov.on .sheet { transform: translateY(0); }
 
-.handle{width:42px;height:5px;border-radius:99px;background:rgba(255,255,255,0.4);margin:14px auto 10px; flex-shrink:0; position:relative; z-index:3}
-.sheethead{padding:8px 20px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0; position:relative; z-index:3}
-.sheetbody{padding:0 20px;overflow-y:auto;overflow-x:hidden;min-height:0;-webkit-overflow-scrolling:touch; position:relative; z-index:3}
+.handle { width: 40px; height: 5px; border-radius: 99px; background: #48484a; margin: 12px auto; flex-shrink: 0; }
+.sheethead { padding: 8px 20px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.sheetbody { padding: 0 20px calc(env(safe-area-inset-bottom) + 24px); overflow-y: auto; overflow-x: hidden; min-height: 0; -webkit-overflow-scrolling: touch; }
 
-/* 表單深邃磨砂輸入框 */
-.input,.select,.textarea{width:100%;background:rgba(0,0,0,0.3);border:0.5px solid rgba(255,255,255,0.15);border-radius:18px;padding:18px;color:#fff;font:inherit;font-size:17px;outline:none;transition:all 0.2s;-webkit-appearance:none;appearance:none;display:block;position:relative;z-index:1;box-shadow:inset 0 2px 6px rgba(0,0,0,0.4)}
-.input:focus,.select:focus,.textarea:focus{border-color:#ff9f0a;background:rgba(0,0,0,0.5);box-shadow:inset 0 2px 6px rgba(0,0,0,0.4), 0 0 0 3px rgba(255,159,10,0.3)}
-.select{background-image:url('data:image/svg+xml;utf8,<svg fill="%23aaa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
-input[type="datetime-local"]{text-align:left}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* 表單 */
+.input, .select, .textarea { width: 100%; background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 12px; padding: 16px; color: #fff; font: inherit; font-size: 16px; outline: none; transition: all 0.2s; -webkit-appearance: none; appearance: none; display: block; }
+.input:focus, .select:focus, .textarea:focus { border-color: #ff9f0a; background: #3a3a3c; }
+.select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23aaa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+input[type="datetime-local"] { text-align: left; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 /* 按鈕與標籤 */
-.chiprow{display:flex;gap:12px;max-width:100%;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.chiprow::-webkit-scrollbar{display:none}
-.chip{flex-shrink:0;padding:14px 20px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:#ddd;font-weight:600;font-size:15px;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);position:relative;z-index:1;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
-.chip.on{background:linear-gradient(135deg,#ff9f0a,#ff453a);border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(255,69,58,0.4), inset 0 1px 2px rgba(255,255,255,0.3)}
-.chip:active{transform:scale(0.92); opacity:0.8}
+.chiprow { display: flex; gap: 10px; max-width: 100%; overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.chiprow::-webkit-scrollbar { display: none; }
+.chip { flex-shrink: 0; padding: 12px 18px; border-radius: 12px; border: none; background: #2c2c2e; color: #fff; font-weight: 600; font-size: 15px; transition: all 0.15s; }
+.chip.on { background: #ff9f0a; color: #fff; }
+.chip:active { opacity: 0.7; transform: scale(0.95); }
 
-.b{width:100%;border:0;border-radius:20px;min-height:60px;font-weight:700;font-size:18px;color:#fff;background:linear-gradient(135deg,#ff9f0a,#ff453a);box-shadow:0 10px 24px rgba(255,69,58,0.4), inset 0 1px 1px rgba(255,255,255,0.4);transition:all 0.15s ease;cursor:pointer;letter-spacing:0.05em;-webkit-appearance:none;display:block;position:relative;z-index:5}
-.b:active{transform:scale(0.95);box-shadow:0 4px 12px rgba(255,69,58,0.3);opacity:0.9}
-.b2{width:100%;border:0.5px solid rgba(255,255,255,0.2);border-radius:20px;min-height:56px;font-weight:600;font-size:17px;background:rgba(255,255,255,0.1);color:#fff;transition:all 0.15s ease;cursor:pointer;-webkit-appearance:none;display:block;position:relative;z-index:5;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
-.b2:active{transform:scale(0.95);background:rgba(255,255,255,0.15);opacity:0.9}
+.b { width: 100%; border: 0; border-radius: 14px; min-height: 56px; font-weight: 700; font-size: 17px; color: #fff; background: #ff9f0a; transition: all 0.15s; cursor: pointer; display: block; }
+.b:active { transform: scale(0.96); opacity: 0.8; }
+.b2 { width: 100%; border: none; border-radius: 14px; min-height: 50px; font-weight: 600; font-size: 16px; background: #2c2c2e; color: #fff; transition: all 0.15s; cursor: pointer; display: block; }
+.b2:active { transform: scale(0.96); background: #3a3a3c; }
 
-.topbtns,.seg{display:flex;gap:12px;flex-wrap:wrap}
-.seg button{flex:1}
-.rec{display:flex;align-items:center;justify-content:center;min-height:140px;border:2px dashed rgba(255,255,255,0.2);border-radius:24px;background:rgba(0,0,0,0.2);color:#aaa;text-align:center;padding:20px;transition:all 0.15s;position:relative;z-index:1}
-.rec:active{background:rgba(0,0,0,0.3);transform:scale(0.98)}
-.k{font-size:14px;color:rgba(255,255,255,0.6);margin:0 0 10px 4px;font-weight:700;letter-spacing:0.02em}
-.right{text-align:right}
-.x{background:rgba(255,255,255,0.15);border:0;color:#fff;font-size:24px;line-height:1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transition:all 0.2s;position:relative;z-index:5;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.x:active{background:rgba(255,255,255,0.3);transform:scale(0.85)}
+.topbtns, .seg { display: flex; gap: 12px; flex-wrap: wrap; }
+.seg button { flex: 1; }
+.rec { display: flex; align-items: center; justify-content: center; min-height: 120px; border: 2px dashed #3a3a3c; border-radius: 16px; background: #1c1c1e; color: #8e8e93; text-align: center; padding: 20px; transition: all 0.15s; }
+.rec:active { background: #2c2c2e; }
+.k { font-size: 14px; color: #8e8e93; margin: 0 0 8px 4px; font-weight: 600; }
+.right { text-align: right; }
+.x { background: #2c2c2e; border: 0; color: #fff; font-size: 20px; line-height: 1; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; transition: all 0.15s; }
+.x:active { background: #3a3a3c; transform: scale(0.9); }
 
-.toast{position:fixed;top:calc(env(safe-area-inset-top)+20px);left:50%;transform:translate(-50%,-20px);background:rgba(28,28,30,0.85);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:0.5px solid rgba(255,255,255,0.15);padding:16px 28px;border-radius:100px;font-size:16px;font-weight:600;z-index:200;opacity:0;pointer-events:none;transition:all 0.3s cubic-bezier(0.32,0.72,0,1);box-shadow:0 12px 32px rgba(0,0,0,0.5);white-space:nowrap}
-.toast.on{opacity:1;transform:translate(-50%,0)}
-.colorRow{display:flex;gap:14px;align-items:center}
-.colorSwatch{width:46px;height:46px;border-radius:50%;border:2px solid transparent;cursor:pointer;flex:0 0 auto;display:grid;place-items:center;transition:transform 0.2s;box-shadow:0 6px 16px rgba(0,0,0,0.3)}
-.colorSwatch:active{transform:scale(0.8)}
-.colorInput{width:64px;height:46px;padding:4px;border-radius:16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#f5f5f5;-webkit-appearance:none;position:relative;z-index:1}
+.toast { position: fixed; top: calc(env(safe-area-inset-top) + 20px); left: 50%; transform: translate(-50%, -20px); background: #2c2c2e; padding: 14px 24px; border-radius: 99px; font-size: 15px; font-weight: 600; z-index: 200; opacity: 0; pointer-events: none; transition: all 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.5); white-space: nowrap; color: #fff; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+.divider { height: 1px; background: #2c2c2e; margin: 16px 0; }
+.colorRow { display: flex; gap: 14px; align-items: center; }
+.colorSwatch { width: 40px; height: 40px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; flex: 0 0 auto; display: grid; place-items: center; transition: transform 0.15s; }
+.colorSwatch:active { transform: scale(0.85); }
+.colorInput { width: 60px; height: 40px; padding: 4px; border-radius: 12px; border: 1px solid #3a3a3c; background: #2c2c2e; color: #f5f5f5; -webkit-appearance: none; }
 
 /* 📱 13 mini 專用優化 */
 @media (max-width:390px){
-    .fab { width: 56px; height: 56px; margin-top: -30px; border-width: 3px; }
+    .fab { width: 50px; height: 50px; margin-top: -26px; border-width: 3px; }
     .title { font-size: 24px; }
-    .glass-panel { border-radius: 20px; }
-    .avatar { width: 40px; height: 40px; }
+    .solid-card { border-radius: 14px; }
+    .avatar { width: 36px; height: 36px; }
     .name { font-size: 16px; }
     .amt { font-size: 18px; }
     .navin { gap: 1px; }
     .navbtn .small { font-size: 10px; }
 }
 
-/* 🌙 純黑模式 (Pure Black Mode) - 完美一鍵切換 */
-body.pure-black .bg-aurora { display: none; }
-body.pure-black .glass-panel { background: #111; box-shadow: 0 0 0 1px #333; -webkit-backdrop-filter: none; backdrop-filter: none; }
-body.pure-black .row:not(:last-child)::after, body.pure-black .listTop:not(:last-child)::after { background: #333; }
-body.pure-black .nav { background: #111; box-shadow: 0 0 0 1px #333, 0 16px 40px rgba(0,0,0,0.8); -webkit-backdrop-filter: none; backdrop-filter: none; border:none; }
-body.pure-black .sheet { background: #1c1c1e; box-shadow: 0 -10px 40px rgba(0,0,0,0.9), 0 0 0 1px #333; -webkit-backdrop-filter: none; backdrop-filter: none; border: none; }
-body.pure-black .input, body.pure-black .select, body.pure-black .textarea { background: #2c2c2e; border: none; box-shadow: none; }
-body.pure-black .chip { background: #2c2c2e; border: none; box-shadow: none; }
-body.pure-black .b2 { background: #2c2c2e; border: none; box-shadow: none; }
+/* 🌙 純黑模式 (Pure Black Mode) - 完美對比度與點擊回饋 */
+body.pure-black #app-container { background: #000; }
+body.pure-black .solid-card { background: #000; border: 1px solid #2c2c2e; }
+body.pure-black .row:not(:last-child)::after, body.pure-black .listTop:not(:last-child)::after { background: #2c2c2e; }
+body.pure-black .nav { background: #000; border-top: 1px solid #2c2c2e; }
+body.pure-black .fab { border-color: #000; }
+body.pure-black .sheet { background: #000; border: 1px solid #2c2c2e; border-bottom: none; }
+body.pure-black .input, body.pure-black .select, body.pure-black .textarea { background: #111; border: 1px solid #333; }
+body.pure-black .chip { background: #111; border: 1px solid #333; }
+body.pure-black .b2 { background: #111; border: 1px solid #333; }
+body.pure-black .rec { background: #111; border-color: #333; }
+body.pure-black .x { background: #111; border: 1px solid #333; }
+/* 🔥 純黑模式點擊回饋加強 */
+body.pure-black .row:active, body.pure-black .listTop:active { background: #1a1a1c !important; }
+body.pure-black .navbtn:active { background: #1a1a1c; }
+body.pure-black .chip:active { background: #222; }
+body.pure-black .b2:active { background: #222; }
 </style>
 </head>
-<body ontouchstart="">
-<div class="bg-aurora">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-    <div class="orb orb-4"></div>
-</div>
+<body>
 
 <div id="app-container">
+    <div class="top">
+        <div class="title">
+            <span>日本GOGOGO</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+                ${rates ? `<span class="status">● 匯率</span>` : ''}
+                <button onclick="toggleTheme()" class="theme-btn">🌙</button>
+            </div>
+        </div>
+        <div class="grid2" style="margin-top:10px">
+            <div class="solid-card" style="padding:16px;">
+                <div style="font-size:12px;color:#ff9f0a;font-weight:700;margin-bottom:4px;">🌍 團隊總開支</div>
+                <div style="font-size:22px;font-weight:800;color:#fff;" id="top-tot">¥0</div>
+                <div style="font-size:11px;color:#8e8e93;margin-top:6px;font-weight:500;" id="top-tdt">今日新增: ¥0</div>
+            </div>
+            <div class="solid-card" style="padding:16px;">
+                <div style="font-size:12px;color:#30d158;font-weight:700;margin-bottom:4px;">👤 我的實質消費</div>
+                <div style="font-size:22px;font-weight:800;color:#fff;" id="top-myc">¥0</div>
+                <div style="font-size:11px;color:#8e8e93;margin-top:6px;font-weight:500;" id="top-myt">今日: ¥0</div>
+            </div>
+        </div>
+    </div>
+
     <div id="app-content"></div>
-    <div class="nav" id="app-nav"></div>
 </div>
 
+<div class="nav" id="app-nav"></div>
 <div id="toast" class="toast"></div>
 
 <script>
@@ -224,18 +214,13 @@ function toggleTheme() {
     state.pureBlack = !state.pureBlack;
     saveState(state);
     applyTheme();
-    toast(state.pureBlack ? '🌙 純黑模式已開啟' : '✨ 玻璃透鏡已開啟');
+    toast(state.pureBlack ? '🌙 純黑模式已開啟' : '✨ 深色模式已開啟');
 }
 
 function toast(t) { const e = $('#toast'); e.innerHTML = t; e.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => e.classList.remove('on'), 2500); }
 function nowISO() { const d = new Date(), z = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; }
 function initials(n) { return (n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'?'; }
 function findCat(id) { return CATS.find(c=>c[0]===id) || CATS[CATS.length-1]; }
-function checkLock(dtStr) {
-    const t = new Date(); const isT = t.getFullYear()===2026 && t.getMonth()===5 && t.getDate()>=11 && t.getDate()<=25;
-    let isR = false; if(dtStr) { const rD = new Date(dtStr); if(!isNaN(rD.getTime())) isR = rD.getFullYear()===2026 && rD.getMonth()===5 && rD.getDate()>=11 && rD.getDate()<=25; }
-    return isT || isR;
-}
 
 async function loadRates() {
     if(Date.now() - rateTs < 3600000 && rates) return rates;
@@ -275,8 +260,6 @@ function calcBalances() {
             Object.entries(e.splits).forEach(([id,v]) => { if(b[id]!=null) b[id] -= ((+v||0)*fR); });
         } else { const s = sw.length ? a/sw.length : 0; sw.forEach(id => { if(b[id]!=null) b[id] -= s; }); }
     });
-    const sM = {}; snapshots().forEach(s => (s.rows||[]).forEach(r => { const k = r.from + '->' + r.to; sM[k] = (sM[k]||0) + (+r.total||0); }));
-    Object.entries(sM).forEach(([k,v]) => { const [f,t] = k.split('->'); if(b[f]!=null) b[f] += (+v||0); if(b[t]!=null) b[t] -= (+v||0); });
     transfers().forEach(t => { const tA = (+t.jpy||0); if(b[t.from]!=null) b[t.from] += tA; if(b[t.to]!=null) b[t.to] -= tA; });
     return b;
 }
@@ -291,7 +274,6 @@ function calcGrossTransfers() {
             Object.entries(e.splits).forEach(([db,v]) => { if(db !== cr && ow[db] && ow[db][cr] != null) ow[db][cr] += ((+v||0)*fR); });
         } else { const s = sw.length ? a/sw.length : 0; sw.forEach(db => { if(db !== cr && ow[db] && ow[db][cr] != null) ow[db][cr] += s; }); }
     });
-    snapshots().forEach(s => (s.rows||[]).forEach(r => { const db = r.from; const cr = r.to; if(ow[db] && ow[db][cr] != null) ow[db][cr] -= (+r.total||0); }));
     transfers().forEach(t => { const db = t.from; const cr = t.to; const tA = (+t.jpy||0); if(ow[db] && ow[db][cr] != null) ow[db][cr] -= tA; });
     const out = []; const p = new Set();
     members().forEach(m1 => { members().forEach(m2 => {
@@ -302,26 +284,26 @@ function calcGrossTransfers() {
     }); }); return out;
 }
 
-function moneyText(jpy) { const v = (+jpy||0); const hk = (!rates || !rates.rates.HKD) ? '' : ` <span style="font-size:0.75em;color:rgba(255,255,255,0.5);font-weight:600">(HK$${Math.round(v*rates.rates.HKD)})</span>`; return `¥${Math.round(v)}${hk}`; }
+function moneyText(jpy) { const v = (+jpy||0); const hk = (!rates || !rates.rates.HKD) ? '' : ` <span style="font-size:0.75em;color:#8e8e93;font-weight:600">(HK$${Math.round(v*rates.rates.HKD)})</span>`; return `¥${Math.round(v)}${hk}`; }
 
 function transferRow(t, isBtn=false) {
     const f = members().find(m=>m.id===t.from) || {name:'?',color:'#f97316'}; const to = members().find(m=>m.id===t.to) || {name:'?',color:'#f97316'};
     const isO = t.to === state.me, iO = t.from === state.me;
     const fAv = f.avatar && f.avatar.startsWith('data:image') ? `<img src="${f.avatar}">` : initials(f.name);
     const tAv = to.avatar && to.avatar.startsWith('data:image') ? `<img src="${to.avatar}">` : initials(to.name);
-    let bg = 'rgba(255,255,255,0.0)', col = '#fff';
+    let bg = 'transparent', col = '#fff';
     if(isO) { col = '#30d158'; } else if(iO) { col = '#ff453a'; }
-    return `<div class="glass-panel" style="margin-bottom:14px;padding:18px 16px;background:${bg};display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;position:relative;z-index:3">
-            <div class="avatar" style="width:40px;height:40px;border-color:${f.color||'rgba(255,255,255,0.2)'};font-size:14px">${fAv}</div>
-            <div style="font-size:17px;font-weight:700;color:${f.color||'#fff'};white-space:nowrap">${iO ? '你' : esc(f.name)}</div>
-            <div style="color:rgba(255,255,255,0.4);font-size:14px;font-weight:800;">➔</div>
-            <div class="avatar" style="width:40px;height:40px;border-color:${to.color||'rgba(255,255,255,0.2)'};font-size:14px">${tAv}</div>
-            <div style="font-size:17px;font-weight:700;color:${to.color||'#fff'};white-space:nowrap">${isO ? '你' : esc(to.name)}</div>
+    return `<div class="solid-card" style="margin-bottom:12px;padding:16px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+            <div class="avatar" style="width:38px;height:38px;border-color:${f.color||'rgba(255,255,255,0.2)'};font-size:13px">${fAv}</div>
+            <div style="font-size:16px;font-weight:700;color:${f.color||'#fff'};white-space:nowrap">${iO ? '你' : esc(f.name)}</div>
+            <div style="color:#8e8e93;font-size:12px;font-weight:800;">➔</div>
+            <div class="avatar" style="width:38px;height:38px;border-color:${to.color||'rgba(255,255,255,0.2)'};font-size:13px">${tAv}</div>
+            <div style="font-size:16px;font-weight:700;color:${to.color||'#fff'};white-space:nowrap">${isO ? '你' : esc(to.name)}</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:relative;z-index:3">
-            <div class="amt" style="font-size:20px;color:${col}">${moneyText(t.amt)}</div>
-            ${isBtn ? `<button class="b" style="width:auto;padding:8px 20px;min-height:0;border-radius:14px;font-size:14px" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <div class="amt" style="font-size:18px;color:${col}">${moneyText(t.amt)}</div>
+            ${isBtn ? `<button class="b" style="width:auto;padding:6px 18px;min-height:0;border-radius:10px;font-size:13px" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
         </div>
     </div>`;
 }
@@ -330,8 +312,8 @@ function expenseRow(e) {
     const c = findCat(e.cat), p = members().find(m=>m.id===e.paidBy) || {name:'?',color:'#f97316'};
     return `<div class="listTop" onclick="openExpense('${e.id}')">
         <div style="display:flex;gap:16px;min-width:0;align-items:center">
-            <div style="width:50px;height:50px;border-radius:16px;background:${c[3]}33;display:grid;place-items:center;flex:0 0 auto;font-size:24px;box-shadow:inset 0 1px 2px rgba(255,255,255,0.2), 0 4px 12px rgba(0,0,0,0.2)">${c[2]}</div>
-            <div style="min-width:0"><div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:18px">${esc(e.name)}</div><div class="muted"><span style="color:${p.color};font-weight:700">${esc(p.name)}</span>${e.location ? ' · ' + esc(e.location) : ''}${e.type==='personal' ? ' · 個人' : ''}</div></div>
+            <div style="width:46px;height:46px;border-radius:14px;background:${c[3]}33;display:grid;place-items:center;flex:0 0 auto;font-size:22px;">${c[2]}</div>
+            <div style="min-width:0"><div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:17px">${esc(e.name)}</div><div class="muted"><span style="color:${p.color};font-weight:700">${esc(p.name)}</span>${e.location ? ' · ' + esc(e.location) : ''}${e.type==='personal' ? ' · 個人' : ''}</div></div>
         </div>
         <div class="right"><div class="amt">${moneyText(+e.amount||0)}</div></div>
     </div>`;
@@ -352,54 +334,59 @@ function render() {
     const ct = CATS.map(c => ({id:c[0], label:c[1], icon:c[2], color:c[3], amt:cM[c[0]]||0})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
     const cTot = ct.reduce((s,c) => s + c.amt, 0);
 
-    let h = `<div class="top"><div class="title"><span>日本GOGOGO</span><div style="display:flex;align-items:center;gap:12px;">${rates ? `<span class="status">● 匯率</span>` : ''}<button onclick="toggleTheme()" class="theme-btn">🌙</button></div></div><div class="grid2" style="margin-top:16px"><div class="glass-panel" style="padding:18px;"><div style="font-size:13px;color:#ff9f0a;font-weight:800;margin-bottom:6px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(255,159,10,0.3);">🌍 團隊總開支</div><div style="font-size:24px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(tot)}</div><div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:8px;position:relative;z-index:3;font-weight:500;">今日新增: ${moneyText(tdT)}</div></div><div class="glass-panel" style="padding:18px;"><div style="font-size:13px;color:#30d158;font-weight:800;margin-bottom:6px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">👤 我的實質消費</div><div style="font-size:24px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(myC)}</div><div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:8px;position:relative;z-index:3;font-weight:500;">今日: ${moneyText(myT)}</div></div></div></div><div class="content-inner">`;
+    // Update Top Numbers
+    $('#top-tot').innerHTML = moneyText(tot);
+    $('#top-tdt').innerHTML = '今日新增: ' + moneyText(tdT);
+    $('#top-myc').innerHTML = moneyText(myC);
+    $('#top-myt').innerHTML = '今日: ' + moneyText(myT);
+
+    let h = '';
 
     if(tab === 'home') {
-        h += `<div class="section"><h2>一對一欠款明細</h2>${aT.length ? aT.map(t=>transferRow(t,false)).join('') : '<div class="glass-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清，無人爭人錢！</div></div></div>'}</div>`;
+        h += `<div class="section"><h2>一對一欠款明細</h2>${aT.length ? aT.map(t=>transferRow(t,false)).join('') : '<div class="solid-card"><div class="row"><div class="name" style="color:#30d158;">✓ 全部已結清，無人爭人錢！</div></div></div>'}</div>`;
         
-        h += `<div class="section"><h2>💸 揮霍排行榜</h2><div class="glass-panel">${sBd.length ? sBd.map((m,i) => { 
+        h += `<div class="section"><h2>💸 揮霍排行榜</h2><div class="solid-card">${sBd.length ? sBd.map((m,i) => { 
             let rI = i===0 ? '👑' : i===1 ? '🥈' : i===2 ? '🥉' : `#${i+1}`; 
             let rC = i===0 ? '#ff9f0a' : i===1 ? '#98989d' : i===2 ? '#bf5af2' : '#8e8e93'; 
             let mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); 
             let label = '正常發揮 🤌';
             if(i === 0) label = '發咗達💵';
             else if(i === sBd.length - 1 && sBd.length > 1) label = '識計數🧮';
-            return `<div class="row"><div style="width:30px;color:${rC};font-weight:800;font-size:${i<3?'20px':'16px'};text-shadow:0 2px 6px rgba(0,0,0,0.3);">${rI}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name" style="color:${m.color||'#fff'}">${esc(m.name)}</div><div class="muted">${label}</div></div><div class="amt">${moneyText(m.spent)}</div></div>`; 
-        }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費</div></div>'}</div></div>`;
+            return `<div class="row"><div style="width:30px;color:${rC};font-weight:800;font-size:${i<3?'20px':'16px'};">${rI}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name" style="color:${m.color||'#fff'}">${esc(m.name)}</div><div class="muted">${label}</div></div><div class="amt">${moneyText(m.spent)}</div></div>`; 
+        }).join('') : '<div class="row"><div class="muted">未有消費</div></div>'}</div></div>`;
         
-        h += `<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="glass-panel">${bd.length ? bd.map((m,i) => { 
+        h += `<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="solid-card">${bd.length ? bd.map((m,i) => { 
             let sT = m.total>1 ? '大債主 🔥' : m.total<-1 ? '爭人錢 💸' : '已結清'; 
             let c = m.total>1 ? '#30d158' : m.total<-1 ? '#ff453a' : '#8e8e93'; 
             let s = m.total>1 ? '+' : ''; 
             let mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); 
             return `<div class="row"><div style="width:30px;color:#8e8e93;font-weight:800;font-size:16px;">${i+1}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name" style="color:${m.color||'#fff'}">${esc(m.name)}</div><div class="muted">${sT}</div></div><div class="amt" style="color:${c}">${s}${moneyText(m.total)}</div></div>`; 
-        }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
+        }).join('') : '<div class="row"><div class="muted">未有旅伴</div></div>'}</div></div>`;
         
-        if(ct.length) h += `<div class="section"><h2>開支分類</h2><div class="glass-panel">${ct.map(c => `<div class="row"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;position:relative;z-index:3"><div style="font-weight:700;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,0.4);">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar" style="position:relative;z-index:3"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('')}</div></div>`;
+        if(ct.length) h += `<div class="section"><h2>開支分類</h2><div class="solid-card">${ct.map(c => `<div class="row"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><div style="font-weight:700;font-size:15px;">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('')}</div></div>`;
     } 
     else if(tab === 'expenses') {
         const gp = {}; ex.forEach(e => { const d = e.dt ? (e.dt.length>10 ? e.dt.slice(0,10) : e.dt) : '未知'; (gp[d] || (gp[d]=[])).push(e); });
-        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button><button class="b2" onclick="openSheet('receipt')">AI 收據掃描</button></div></div><div class="section"><h2>清單</h2>${Object.keys(gp).sort((a,b)=>b.localeCompare(a)).map(d => `<div style="margin-bottom:24px"><div class="muted" style="margin:0 0 10px 14px;font-weight:700;font-size:14px;letter-spacing:0.02em;">${d}</div><div class="glass-panel">${gp[d].map(e=>expenseRow(e)).join('')}</div></div>`).join('') || '<div class="glass-panel"><div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費紀錄</div></div></div>'}</div>`;
+        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button><button class="b2" onclick="openSheet('receipt')">AI 收據掃描</button></div></div><div class="section"><h2>清單</h2>${Object.keys(gp).sort((a,b)=>b.localeCompare(a)).map(d => `<div style="margin-bottom:24px"><div class="muted" style="margin:0 0 10px 14px;font-weight:700;font-size:14px;">${d}</div><div class="solid-card">${gp[d].map(e=>expenseRow(e)).join('')}</div></div>`).join('') || '<div class="solid-card"><div class="row"><div class="muted">未有消費紀錄</div></div></div>'}</div>`;
     } 
     else if(tab === 'members') {
-        h += `<div class="section" style="margin-top:8px"><h2>旅伴</h2><div class="topbtns"><button class="b2" onclick="openSheet('addMember')">＋ 新增旅伴</button><button class="b2" onclick="openSheet('settings')">系統設定</button></div></div><div class="section"><div class="glass-panel">${members().length ? members().map(m => { const mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;position:relative;z-index:3"><div class="name" style="color:${m.color||'#fff'}">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;position:relative;z-index:3"><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;color:#ff453a;border-color:rgba(255,69,58,0.4)" onclick="delMember('${m.id}')">刪除</button></div></div>`; }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
+        h += `<div class="section" style="margin-top:8px"><h2>旅伴</h2><div class="topbtns"><button class="b2" onclick="openSheet('addMember')">＋ 新增旅伴</button><button class="b2" onclick="openSheet('settings')">系統設定</button></div></div><div class="section"><div class="solid-card">${members().length ? members().map(m => { const mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;"><div class="name" style="color:${m.color||'#fff'}">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;"><button class="b2" style="padding:0 16px;min-height:40px;font-size:14px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 16px;min-height:40px;font-size:14px;color:#ff453a;" onclick="delMember('${m.id}')">刪除</button></div></div>`; }).join('') : '<div class="row"><div class="muted">未有旅伴</div></div>'}</div></div>`;
     } 
     else if(tab === 'settle') {
-        h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>${aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="glass-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清</div></div></div>'}<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div><div class="section"><h2>還款紀錄</h2><div class="glass-panel">`;
-        if(transfers().length) { h += transfers().map(t => { const f = members().find(m=>m.id===t.from) || {name:'?'}; const to = members().find(m=>m.id===t.to) || {name:'?'}; const dtD = t.dt ? (t.dt.length>16 ? t.dt.replace('T',' ').slice(0,16) : t.dt) : '未知'; return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;box-shadow:inset 0 1px 2px rgba(255,255,255,0.1)">💸</div><div><div class="name"><span style="color:${f.color||'#fff'}">${esc(f.name)}</span> 還給 <span style="color:${to.color||'#fff'}">${esc(to.name)}</span></div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; }).join(''); } else { h += `<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有還款記錄</div></div>`; }
+        h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>${aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="solid-card"><div class="row"><div class="name" style="color:#30d158;">✓ 全部已結清</div></div></div>'}<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div><div class="section"><h2>還款紀錄</h2><div class="solid-card">`;
+        if(transfers().length) { h += transfers().map(t => { const f = members().find(m=>m.id===t.from) || {name:'?'}; const to = members().find(m=>m.id===t.to) || {name:'?'}; const dtD = t.dt ? (t.dt.length>16 ? t.dt.replace('T',' ').slice(0,16) : t.dt) : '未知'; return `<div class="listTop"><div style="display:flex;gap:14px;align-items:center;"><div style="width:46px;height:46px;border-radius:14px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:20px;">💸</div><div><div class="name"><span style="color:${f.color||'#fff'}">${esc(f.name)}</span> 還給 <span style="color:${to.color||'#fff'}">${esc(to.name)}</span></div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; }).join(''); } else { h += `<div class="row"><div class="muted">未有還款記錄</div></div>`; }
         h += `</div></div>`;
     }
 
-    h += `</div>`; 
     $('#app-content').innerHTML = h;
 
     let navHTML = `
     <div class="navin">
-        <button class="navbtn ${tab==='home'?'on':''}" onclick="setTab('home')"><div style="font-size:26px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">🏠</div><div class="small">總覽</div></button>
-        <button class="navbtn ${tab==='expenses'?'on':''}" onclick="setTab('expenses')"><div style="font-size:26px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">🧾</div><div class="small">消費</div></button>
+        <button class="navbtn ${tab==='home'?'on':''}" onclick="setTab('home')"><div style="font-size:24px;">🏠</div><div class="small">總覽</div></button>
+        <button class="navbtn ${tab==='expenses'?'on':''}" onclick="setTab('expenses')"><div style="font-size:24px;">🧾</div><div class="small">消費</div></button>
         <button class="navbtn" onclick="openSheet('addExpense')"><div class="fab">+</div></button>
-        <button class="navbtn ${tab==='settle'?'on':''}" onclick="setTab('settle')"><div style="font-size:26px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">💰</div><div class="small">結帳</div></button>
-        <button class="navbtn ${tab==='members'?'on':''}" onclick="setTab('members')"><div style="font-size:26px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">👥</div><div class="small">旅伴</div></button>
+        <button class="navbtn ${tab==='settle'?'on':''}" onclick="setTab('settle')"><div style="font-size:24px;">💰</div><div class="small">結帳</div></button>
+        <button class="navbtn ${tab==='members'?'on':''}" onclick="setTab('members')"><div style="font-size:24px;">👥</div><div class="small">旅伴</div></button>
     </div>`;
     $('#app-nav').innerHTML = navHTML;
 }
@@ -433,14 +420,14 @@ function closeSheet() {
     const sh = document.querySelector('.sheetov'); if(!sh) return;
     sh.classList.remove('on');
     document.body.classList.remove('sheet-open');
-    setTimeout(() => { sh.remove(); sheet = ''; editId = null; }, 400); 
+    setTimeout(() => { sh.remove(); sheet = ''; editId = null; }, 300); 
 }
 
 function renderSheet() {
     if(!sheet) return closeSheet();
     const eSh = document.querySelector('.sheetov'); if(eSh) eSh.remove();
     const w = document.createElement('div'); w.className = 'sheetov'; w.onclick = e => { if(e.target === w) closeSheet(); };
-    w.innerHTML = `<div class="sheet"><div class="handle"></div><div class="sheethead"><div style="font-weight:800;font-size:24px;text-shadow:0 2px 8px rgba(0,0,0,0.5);">${sheetTitle()}</div><button class="x" onclick="closeSheet()">×</button></div><div class="sheetbody">${sheetBody()}</div></div>`;
+    w.innerHTML = `<div class="sheet"><div class="handle"></div><div class="sheethead"><div style="font-weight:800;font-size:22px;">${sheetTitle()}</div><button class="x" onclick="closeSheet()">×</button></div><div class="sheetbody">${sheetBody()}</div></div>`;
     document.body.appendChild(w);
     bindSheet();
     void w.offsetWidth;
@@ -459,7 +446,7 @@ function sheetBody() {
     else if(sheet === 'viewExpense' && ex) html = viewExpense(ex);
     else if(sheet === 'settings') html = settings();
     
-    return html + '<div style="height:120px; padding-bottom:env(safe-area-inset-bottom); width:100%; flex-shrink:0;"></div>';
+    return html;
 }
 
 function forms() {
@@ -490,10 +477,10 @@ function forms() {
         });
         return `
         <div class="k">請輸入密碼移除 <span style="color:${m?m.color:'#fff'}">${esc(m?m.name:'')}</span></div>
-        ${inv ? `<div style="color:#ff453a;margin-bottom:20px;background:rgba(255,69,58,0.15);padding:14px;border-radius:16px;border:1px solid rgba(255,69,58,0.3);font-weight:500;">⚠️ 注意：此旅伴已有消費紀錄。</div>` : ''}
+        ${inv ? `<div style="color:#ff453a;margin-bottom:20px;background:rgba(255,69,58,0.15);padding:14px;border-radius:12px;border:1px solid rgba(255,69,58,0.3);font-weight:500;">⚠️ 注意：此旅伴已有消費紀錄。</div>` : ''}
         <input id="delPwd" type="password" class="input" placeholder="請輸入密碼">
         <div style="height:32px"></div>
-        <button class="b" style="background:linear-gradient(135deg,#ff453a,#bf2c24)" onclick="confirmDelMember()">強制確定刪除</button>`;
+        <button class="b" style="background:#ff453a;" onclick="confirmDelMember()">強制確定刪除</button>`;
     }
     
     if(sheet === 'addMember') {
@@ -511,7 +498,7 @@ function forms() {
         <input id="mpwd" type="password" class="input" placeholder="設定密碼">
         <div class="k" style="margin-top:20px">頭像 (上傳)</div>
         <input id="avatarFile" type="file" accept="image/*" class="input">
-        <img id="avatarPreview" style="display:none;width:80px;height:80px;margin-top:16px;border-radius:20px;object-fit:cover;border:1px solid rgba(255,255,255,0.2);box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+        <img id="avatarPreview" style="display:none;width:80px;height:80px;margin-top:16px;border-radius:20px;object-fit:cover;border:1px solid rgba(255,255,255,0.2);">
         <textarea id="av" class="textarea" rows="2" placeholder="或者貼 base64 / Emoji" style="margin-top:16px"></textarea>
         <div style="height:32px"></div>
         <button class="b" onclick="saveMember()">新增旅伴</button>`;
@@ -526,7 +513,7 @@ function forms() {
             : `<option disabled selected>請先新增旅伴</option>`;
             
         const sharedWithCheckboxes = members().length > 0
-            ? members().map(m=>`<label class="row" style="cursor:pointer;padding:14px 16px;border-radius:16px;"><div class="avatar" style="width:38px;height:38px;background:${m.color||'#f97316'};font-size:15px;box-shadow:inset 0 1px 2px rgba(255,255,255,0.3)">${m.avatar&&m.avatar.startsWith('data:image')?`<img src="${m.avatar}">`:initials(m.name)}</div><div style="flex:1;color:${m.color||'#fff'};font-weight:700;font-size:17px;position:relative;z-index:3">${esc(m.name)}</div><input type="checkbox" data-share="${m.id}" ${sw.indexOf(m.id)!==-1?'checked':''} style="width:22px;height:22px;accent-color:#ff9f0a"></label>`).join('')
+            ? members().map(m=>`<label class="row" style="cursor:pointer;padding:12px 16px;border-radius:12px;background:#2c2c2e;margin-bottom:8px;"><div class="avatar" style="width:36px;height:36px;background:${m.color||'#f97316'};font-size:14px;">${m.avatar&&m.avatar.startsWith('data:image')?`<img src="${m.avatar}">`:initials(m.name)}</div><div style="flex:1;color:${m.color||'#fff'};font-weight:700;font-size:16px;">${esc(m.name)}</div><input type="checkbox" data-share="${m.id}" ${sw.indexOf(m.id)!==-1?'checked':''} style="width:22px;height:22px;accent-color:#ff9f0a"></label>`).join('')
             : `<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4)">請先新增旅伴</div>`;
 
         return `
@@ -557,7 +544,7 @@ function forms() {
         <select id="epay" class="select">${payerOptions}</select>
         
         <div class="k" style="margin-top:20px">分擔人</div>
-        <div class="glass-panel" style="padding:4px;">${sharedWithCheckboxes}</div>
+        <div>${sharedWithCheckboxes}</div>
         
         <div class="k" style="margin-top:20px">分帳方式</div>
         <div class="seg">
@@ -565,8 +552,8 @@ function forms() {
             <button class="chip ${(e?e.splitMode:'equal')==='manual'?'on':''}" data-split="manual">手動輸入</button>
         </div>
         <div id="manualArea" style="margin-top:16px;display:${(e?e.splitMode:'equal')==='manual'?'block':'none'}">
-            <div class="glass-panel">
-                ${members().filter(m=>sw.indexOf(m.id)!==-1).map(m=>`<div class="row" style="padding:14px 16px"><div style="width:90px;color:${m.color||'#fff'};font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div><input class="input split" data-mid="${m.id}" type="number" placeholder="0" value="${e&&e.splits&&e.splits[m.id]?e.splits[m.id]:''}"></div>`).join('')}
+            <div class="solid-card">
+                ${members().filter(m=>sw.indexOf(m.id)!==-1).map(m=>`<div class="row" style="padding:12px 16px"><div style="width:90px;color:${m.color||'#fff'};font-weight:700;font-size:16px;">${esc(m.name)}</div><input class="input split" data-mid="${m.id}" type="number" placeholder="0" value="${e&&e.splits&&e.splits[m.id]?e.splits[m.id]:''}"></div>`).join('')}
             </div>
         </div>
         
@@ -585,9 +572,9 @@ function forms() {
     
     if(sheet === 'receipt') {
         return `
-        <div class="rec"><div><div class="emoji" style="font-size:32px;margin-bottom:12px">🧾</div><div style="font-weight:800;font-size:18px;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.5);">Gemini AI 收據掃描</div><div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px;">自動讀取金額與項目</div></div></div>
+        <div class="rec"><div><div class="emoji" style="font-size:32px;margin-bottom:12px">🧾</div><div style="font-weight:800;font-size:18px;color:#fff;">Gemini AI 收據掃描</div><div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px;">自動讀取金額與項目</div></div></div>
         <input id="receiptFile" type="file" accept="image/*" class="input" style="margin-top:20px">
-        <img id="receiptPreview" style="display:none;width:100%;max-height:260px;margin-top:20px;border-radius:18px;object-fit:contain;border:0.5px solid rgba(255,255,255,0.2);position:relative;z-index:3">
+        <img id="receiptPreview" style="display:none;width:100%;max-height:260px;margin-top:20px;border-radius:16px;object-fit:contain;border:0.5px solid rgba(255,255,255,0.2);">
         <div style="height:32px"></div>
         <button class="b2" onclick="uploadReceipt()">上傳並識別</button>`;
     }
@@ -609,24 +596,24 @@ function viewExpense(e) {
     
     let hHtml = ''; 
     if(e.editHistory && e.editHistory.length > 0) {
-        hHtml = `<div class="divider"></div><div class="row" style="padding:0;border:none;"><div style="width:100%"><div class="muted" style="color:#ff453a;font-weight:700;margin-bottom:10px">⚠️ 修改紀錄</div>${e.editHistory.map(h=>{const ed=members().find(m=>m.id===h.by)||{name:'未知',color:'#fff'};return `<div style="font-size:13px;color:#ccc;margin-top:10px;padding:14px;background:rgba(255,255,255,0.08);border-radius:14px;position:relative;z-index:3;box-shadow:inset 0 1px 2px rgba(0,0,0,0.2)">[${new Date(h.ts).toLocaleString()}] <span style="color:${ed.color};font-weight:700">${esc(ed.name)}</span> ${esc(h.action)}</div>`}).join('')}</div></div>`;
+        hHtml = `<div class="divider"></div><div class="row" style="padding:0;border:none;"><div style="width:100%"><div class="muted" style="color:#ff453a;font-weight:700;margin-bottom:10px">⚠️ 修改紀錄</div>${e.editHistory.map(h=>{const ed=members().find(m=>m.id===h.by)||{name:'未知',color:'#fff'};return `<div style="font-size:13px;color:#ccc;margin-top:10px;padding:14px;background:#2c2c2e;border-radius:12px;">[${new Date(h.ts).toLocaleString()}] <span style="color:${ed.color};font-weight:700">${esc(ed.name)}</span> ${esc(h.action)}</div>`}).join('')}</div></div>`;
     }
     
     return `
-    <div class="glass-panel">
-        <div class="row" style="align-items:flex-start;padding:28px 20px">
-            <div style="width:60px;height:60px;border-radius:20px;background:${c[3]}33;display:grid;place-items:center;font-size:32px;box-shadow:inset 0 1px 3px rgba(255,255,255,0.2), 0 6px 16px rgba(0,0,0,0.3);position:relative;z-index:3">${c[2]}</div>
-            <div style="flex:1;position:relative;z-index:3">
-                <div style="font-size:26px;font-weight:800;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${esc(e.name)}</div>
+    <div class="solid-card">
+        <div class="row" style="align-items:flex-start;padding:24px 20px">
+            <div style="width:56px;height:56px;border-radius:16px;background:${c[3]}33;display:grid;place-items:center;font-size:28px;">${c[2]}</div>
+            <div style="flex:1;">
+                <div style="font-size:24px;font-weight:800;margin-bottom:6px;">${esc(e.name)}</div>
                 <div class="muted">${e.dt?(e.dt.length>18?e.dt.replace('T',' ').slice(0,16):e.dt):'未知'}${e.location?' · '+esc(e.location):''}</div>
             </div>
-            <div class="right" style="position:relative;z-index:3"><div class="amt" style="font-size:26px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(+e.amount||0)}</div></div>
+            <div class="right"><div class="amt" style="font-size:24px;">${moneyText(+e.amount||0)}</div></div>
         </div>
-        <div class="listTop"><div class="muted">類別</div><span class="tag" style="font-size:14px">${c[2]} ${c[1]}</span></div>
-        <div class="listTop"><div class="muted">類型</div><div style="font-weight:700;font-size:16px;position:relative;z-index:3">${e.type==='personal'?'個人消費':'共同分帳'}</div></div>
-        <div class="listTop"><div class="muted">付款人</div><div style="color:${p.color};font-weight:800;font-size:18px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${esc(p.name)}</div></div>
-        <div class="listTop" style="flex-wrap:wrap"><div class="muted">分擔人</div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;position:relative;z-index:3">${sw.map(m=>`<span class="tag" style="color:${m.color};font-size:14px;">${esc(m.name)}</span>`).join('')}</div></div>
-        ${e.note ? `<div class="divider"></div><div class="row" style="border:none;padding-top:0"><div><div class="muted" style="margin-bottom:8px">備註</div><div style="white-space:pre-wrap;font-size:17px;line-height:1.5;position:relative;z-index:3;font-weight:500">${esc(e.note)}</div></div></div>` : ''} 
+        <div class="listTop"><div class="muted">類別</div><span class="tag" style="font-size:13px">${c[2]} ${c[1]}</span></div>
+        <div class="listTop"><div class="muted">類型</div><div style="font-weight:700;font-size:15px;">${e.type==='personal'?'個人消費':'共同分帳'}</div></div>
+        <div class="listTop"><div class="muted">付款人</div><div style="color:${p.color};font-weight:800;font-size:16px;">${esc(p.name)}</div></div>
+        <div class="listTop" style="flex-wrap:wrap"><div class="muted">分擔人</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">${sw.map(m=>`<span class="tag" style="color:${m.color};font-size:13px;">${esc(m.name)}</span>`).join('')}</div></div>
+        ${e.note ? `<div class="divider"></div><div class="row" style="border:none;padding-top:0"><div><div class="muted" style="margin-bottom:8px">備註</div><div style="white-space:pre-wrap;font-size:16px;line-height:1.5;">${esc(e.note)}</div></div></div>` : ''} 
         ${hHtml ? `<div style="padding:0 16px 20px">${hHtml}</div>` : ''}
     </div>
     <div style="height:32px"></div>
@@ -637,7 +624,7 @@ function viewExpense(e) {
 }
 
 function settings() {
-    return `<div class="glass-panel"><div class="row"><div style="flex:1;position:relative;z-index:3"><div class="name">分享連結</div><div class="muted">傳送俾朋友</div></div><button class="b2" style="width:auto;padding:0 24px" onclick="copyLink()">複製</button></div></div><div style="margin-top:40px"><button class="b" style="background:linear-gradient(135deg,#ff453a,#bf2c24);box-shadow:0 10px 24px rgba(255,69,58,0.4);" onclick="resetAllData()">⚠️ 清除所有資料</button></div>`;
+    return `<div class="solid-card"><div class="row"><div style="flex:1;"><div class="name">分享連結</div><div class="muted">傳送俾朋友</div></div><button class="b2" style="width:auto;padding:0 24px" onclick="copyLink()">複製</button></div></div><div style="margin-top:40px"><button class="b" style="background:#ff453a;" onclick="resetAllData()">⚠️ 清除所有資料</button></div>`;
 }
 
 async function compressImage(file, maxWidth=800) {
@@ -681,10 +668,10 @@ function bindSheet() {
             let inner = '';
             members().forEach(x => {
                 if(arr.indexOf(x.id) !== -1) {
-                    inner += `<div class="row" style="padding:14px 16px"><div style="width:90px;color:${x.color||'#fff'};font-weight:700;font-size:16px;position:relative;z-index:3">${esc(x.name)}</div><input class="input split" data-mid="${x.id}" type="number" placeholder="0"></div>`;
+                    inner += `<div class="row" style="padding:14px 16px"><div style="width:90px;color:${x.color||'#fff'};font-weight:700;font-size:16px;">${esc(x.name)}</div><input class="input split" data-mid="${x.id}" type="number" placeholder="0"></div>`;
                 }
             });
-            m.innerHTML = `<div class="glass-panel">${inner}</div>`;
+            m.innerHTML = `<div class="solid-card">${inner}</div>`;
         }
     });
     
@@ -819,8 +806,9 @@ async function uploadReceipt() {
         const d = await r.json();
         
         let aiText = d.candidates[0].content.parts[0].text;
-        const magicStr = String.fromCharCode(96) + String.fromCharCode(96) + String.fromCharCode(96);
-        aiText = aiText.replace(new RegExp(magicStr + 'json', 'g'), '').replace(new RegExp(magicStr, 'g'), '').trim();
+        const marker1 = String.fromCharCode(96) + String.fromCharCode(96) + String.fromCharCode(96) + 'json';
+        const marker2 = String.fromCharCode(96) + String.fromCharCode(96) + String.fromCharCode(96);
+        aiText = aiText.replace(marker1, '').replace(marker2, '').trim();
         const aiR = JSON.parse(aiText);
         
         openSheet('addExpense');
@@ -854,3 +842,4 @@ boot();
 </body>
 </html>
 
+%
