@@ -1,28 +1,23 @@
-html
 <!doctype html>
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#050508">
+<meta name="theme-color" content="#08080a">
 <title>日本GOGOGO</title>
 <style>
 /* 核心排版：徹底防跳動、防藍色選取框、防預設點擊反光 */
 *{box-sizing:border-box;touch-action:manipulation;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input, textarea, .select {-webkit-user-select:auto;user-select:auto;}
-html,body{height:100%;height:100dvh;width:100vw;overflow:hidden;background:#050508;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+html,body{height:100%;height:100dvh;width:100vw;overflow:hidden;background:#08080a;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
 
-/* ⛪ 教堂玻璃紙 (Stained Glass) 五彩琉璃底光 */
+/* 🎨 教堂玻璃紙 靜態亞克力底光 (提升通透感，棄用死黑) */
 .bg-acrylic {
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background-color: #050508;
+    background-color: #08080a;
     background-image: 
-        radial-gradient(circle at 10% 10%, rgba(255, 55, 95, 0.28) 0%, transparent 55%),   /* 紅寶石 Ruby */
-        radial-gradient(circle at 90% 20%, rgba(10, 132, 255, 0.28) 0%, transparent 55%),  /* 藍寶石 Sapphire */
-        radial-gradient(circle at 20% 85%, rgba(48, 209, 88, 0.2) 0%, transparent 55%),    /* 祖母綠 Emerald */
-        radial-gradient(circle at 80% 90%, rgba(191, 90, 242, 0.28) 0%, transparent 55%),  /* 紫水晶 Amethyst */
-        radial-gradient(circle at 50% 50%, rgba(255, 214, 10, 0.12) 0%, transparent 65%);  /* 琥珀金 Amber */
-    filter: blur(45px); -webkit-filter: blur(45px);
+        radial-gradient(ellipse at 15% 10%, rgba(255, 159, 10, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 90%, rgba(10, 132, 255, 0.12) 0%, transparent 55%);
 }
 
 /* 主容器特效 */
@@ -35,74 +30,75 @@ body.sheet-open #app-container{transform:scale(0.92) translateY(12px);border-rad
 
 /* 頂部 Header */
 .top{padding:calc(env(safe-area-inset-top) + 20px) 16px 12px;max-width:600px;margin:0 auto;width:100%;}
-.title{font-size:28px;color:#fff;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;letter-spacing:0.02em;text-shadow:0 2px 10px rgba(0,0,0,0.6);}
-.status{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#fff;background:rgba(255,255,255,0.15);border:0.5px solid rgba(255,255,255,0.3);padding:4px 10px;border-radius:999px;font-weight:700;box-shadow: 0 2px 8px rgba(0,0,0,0.2);}
+.title{font-size:28px;color:#fff;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;letter-spacing:0.02em;text-shadow:0 2px 10px rgba(0,0,0,0.5);}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#fff;background:rgba(255,255,255,0.15);border:0.5px solid rgba(255,255,255,0.3);padding:4px 10px;border-radius:999px;font-weight:700;}
 
 .content{padding:0 16px;max-width:600px;margin:0 auto;}
 .section{margin:28px 0}
-.section h2{font-size:13px;color:rgba(255,255,255,0.7);text-transform:uppercase;margin:0 0 10px 12px;font-weight:600;letter-spacing:0.05em;text-shadow:0 1px 4px rgba(0,0,0,0.5);}
+.section h2{font-size:13px;color:rgba(255,255,255,0.6);text-transform:uppercase;margin:0 0 10px 12px;font-weight:600;letter-spacing:0.05em;}
 
-/* 🪞 高透光度亞克力卡片 (通用) */
-.acrylic-card {
-    background: rgba(255, 255, 255, 0.05);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    backdrop-filter: blur(28px) saturate(180%);
+/* 🪞 高透光度亞克力通用面板 */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.04); /* 極高透明度，棄用黑色底 */
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+    backdrop-filter: blur(32px) saturate(160%);
     border-radius: 20px;
+    overflow: hidden;
     position: relative;
     border: 0.5px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
-    transition: transform 0.15s ease, background 0.15s ease;
-    overflow: hidden;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.2), 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s ease, background 0.2s ease;
 }
 
-/* 💎 寶石雙色頂部卡片 */
-.acrylic-ruby { background: rgba(255, 55, 95, 0.12); border-color: rgba(255, 55, 95, 0.25); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(255, 55, 95, 0.15); }
-.acrylic-sapphire { background: rgba(10, 132, 255, 0.12); border-color: rgba(10, 132, 255, 0.25); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(10, 132, 255, 0.15); }
+/* 雙色頂部卡片 */
+.acrylic-ruby { background: rgba(255, 55, 95, 0.12); border-color: rgba(255, 55, 95, 0.25); box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.25), 0 8px 24px rgba(255, 55, 95, 0.15); }
+.acrylic-sapphire { background: rgba(10, 132, 255, 0.12); border-color: rgba(10, 132, 255, 0.25); box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.25), 0 8px 24px rgba(10, 132, 255, 0.15); }
 
-.row, .listTop { display: flex; align-items: center; gap: 14px; padding: 18px 16px; position: relative; z-index: 3; transition: background 0.15s; }
-.row:not(:last-child)::after, .listTop:not(:last-child)::after { content: ""; position: absolute; bottom: 0; left: 16px; right: 16px; height: 1px; background: rgba(255, 255, 255, 0.08); }
+.row, .listTop { display: flex; align-items: center; gap: 14px; padding: 18px 16px; position: relative; transition: background 0.15s ease; z-index: 3; }
+.row:not(:last-child)::after, .listTop:not(:last-child)::after {
+    content: ""; position: absolute; bottom: 0; left: 16px; right: 16px; height: 1px; background: rgba(255, 255, 255, 0.06);
+}
 .listTop { justify-content: space-between; }
-.row:active, .listTop:active { background: rgba(255, 255, 255, 0.1); }
+.row:active, .listTop:active { background: rgba(255, 255, 255, 0.08); }
 
 /* 頭像與文字 */
-.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: rgba(255,255,255,0.15); flex: 0 0 auto; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: rgba(255,255,255,0.15); flex: 0 0 auto; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
-.name { font-weight: 700; font-size: 17px; margin-bottom: 4px; color: #fff; letter-spacing: 0.01em; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-.muted { color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 500; }
-.amt { font-weight: 800; font-size: 20px; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.name { font-weight: 700; font-size: 17px; margin-bottom: 4px; color: #fff; letter-spacing: 0.01em; }
+.muted { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; }
+.amt { font-weight: 800; font-size: 20px; color: #fff; }
 
-.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; font-weight: 700; }
-.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 0.5px solid rgba(255,255,255,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-.bar { height: 6px; background: rgba(0,0,0,0.4); border-radius: 999px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.6); border: 0.5px solid rgba(255,255,255,0.05); }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.15); color: #fff; font-size: 11px; font-weight: 700; }
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 0.5px solid rgba(255,255,255,0.15); }
+.bar { height: 6px; background: rgba(0,0,0,0.3); border-radius: 999px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); border: 0.5px solid rgba(255,255,255,0.1); }
 .bar>div { height: 100%; border-radius: inherit; transition: width 0.5s ease-out; box-shadow: 0 0 10px currentColor; }
 
-/* 🍎 沉底懸浮導覽列 */
+/* 🍎 沉底懸浮導覽列 (防漏字設計) */
 .nav {
     position: fixed; left: 0; right: 0; bottom: 0;
     padding: 10px 16px calc(env(safe-area-inset-bottom) + 10px);
-    background: rgba(15, 15, 18, 0.7);
+    background: rgba(20, 20, 25, 0.85);
     -webkit-backdrop-filter: blur(40px) saturate(200%); backdrop-filter: blur(40px) saturate(200%);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 0.5px solid rgba(255, 255, 255, 0.15);
     z-index: 40; transition: transform 0.4s cubic-bezier(0.32,0.72,0,1);
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
 }
 body.sheet-open .nav { transform: translateY(100%); }
 
 .navin { max-width: 560px; margin: 0 auto; display: flex; gap: 4px; align-items: stretch; position: relative; z-index: 5; }
-.navbtn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: rgba(255,255,255,0.45); background: transparent; border-radius: 16px; padding: 8px 4px; border: 0; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; position: relative; z-index: 1; }
+.navbtn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: rgba(255,255,255,0.4); background: transparent; border-radius: 16px; padding: 8px 4px; border: 0; transition: all 0.15s ease; cursor: pointer; position: relative; z-index: 1; }
 .navbtn:active { transform: scale(0.85); background: rgba(255,255,255,0.1); } 
-.navbtn.on { color: #fff; text-shadow: 0 0 12px rgba(255, 255, 255, 0.6); }
+.navbtn.on { color: #ff9f0a; text-shadow: 0 0 12px rgba(255, 159, 10, 0.6); }
 .navbtn .small { font-weight: 700; font-size: 11px; pointer-events: none; }
-/* 🔮 紫水晶 ➔ 藍寶石漸變 */
-.fab { width: 60px; height: 60px; border-radius: 50%; margin-top: -34px; background: linear-gradient(135deg, #bf5af2, #0a84ff); box-shadow: 0 8px 24px rgba(191,90,242,0.5), inset 0 2px 4px rgba(255,255,255,0.4); display: grid; place-items: center; color: #fff; font-size: 32px; font-weight: 300; border: 4px solid rgba(15,15,18,0.9); position: relative; z-index: 2; transition: transform 0.15s; }
+.fab { width: 60px; height: 60px; border-radius: 50%; margin-top: -34px; background: linear-gradient(135deg, #ff9f0a, #ff375f); box-shadow: 0 8px 24px rgba(255,159,10,0.5), inset 0 2px 4px rgba(255,255,255,0.4); display: grid; place-items: center; color: #fff; font-size: 32px; font-weight: 300; border: 4px solid #141416; position: relative; z-index: 2; transition: transform 0.15s ease; }
 .navbtn:active .fab { transform: scale(0.85) translateY(4px); }
 
 /* 🍏 彈出視窗 Sheet */
 .sheetov { position: fixed; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: flex-end; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.32,0.72,0,1); }
-.sheetov.on { opacity: 1; pointer-events: auto; background: rgba(0,0,0,0.7); }
+.sheetov.on { opacity: 1; pointer-events: auto; background: rgba(0,0,0,0.6); }
 .sheet {
     width: 100%; max-width: 600px; max-height: 92vh;
-    background: rgba(25, 25, 28, 0.75);
+    background: rgba(30, 30, 35, 0.8);
     -webkit-backdrop-filter: blur(50px) saturate(200%); backdrop-filter: blur(50px) saturate(200%);
     border-radius: 36px 36px 0 0;
     border-top: 1px solid rgba(255, 255, 255, 0.25);
@@ -118,9 +114,9 @@ body.sheet-open .nav { transform: translateY(100%); }
 .sheethead { padding: 8px 20px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; position: relative; z-index: 3; }
 .sheetbody { padding: 0 20px; overflow-y: auto; overflow-x: hidden; min-height: 0; -webkit-overflow-scrolling: touch; position: relative; z-index: 3; }
 
-/* 表單高透玻璃框 */
-.input, .select, .textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 18px; color: #fff; font: inherit; font-size: 16px; outline: none; transition: all 0.2s; -webkit-appearance: none; appearance: none; display: block; position: relative; z-index: 1; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); }
-.input:focus, .select:focus, .textarea:focus { border-color: #bf5af2; background: rgba(0,0,0,0.5); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), 0 0 0 3px rgba(191,90,242,0.3); }
+/* 表單高透琉璃化：改為白底，取代死黑底 */
+.input, .select, .textarea { width: 100%; background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 18px; color: #fff; font: inherit; font-size: 16px; outline: none; transition: all 0.2s; -webkit-appearance: none; appearance: none; display: block; position: relative; z-index: 1; box-shadow: inset 0 2px 6px rgba(0,0,0,0.1); }
+.input:focus, .select:focus, .textarea:focus { border-color: #ff9f0a; background: rgba(255,255,255,0.1); box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), 0 0 0 3px rgba(255,159,10,0.25); }
 .select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23fff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
 input[type="datetime-local"] { text-align: left; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -128,36 +124,38 @@ input[type="datetime-local"] { text-align: left; }
 /* 按鈕與標籤 */
 .chiprow { display: flex; gap: 10px; max-width: 100%; overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .chiprow::-webkit-scrollbar { display: none; }
-.chip { flex-shrink: 0; padding: 14px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #ddd; font-weight: 600; font-size: 15px; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); position: relative; z-index: 1; text-shadow:0 1px 2px rgba(0,0,0,0.5); }
+.chip { flex-shrink: 0; padding: 14px 20px; border-radius: 16px; border: 0.5px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #ddd; font-weight: 600; font-size: 15px; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); position: relative; z-index: 1; }
 .chip:active { transform: scale(0.92); opacity: 0.8; }
-.chip.on { background: #bf5af2; color: #fff; border-color: #bf5af2; box-shadow: 0 4px 16px rgba(191,90,242,0.4); }
 
-.b { width: 100%; border: 0; border-radius: 18px; min-height: 60px; font-weight: 700; font-size: 18px; color: #fff; background: linear-gradient(135deg, #ff375f, #bf5af2); box-shadow: 0 8px 24px rgba(255,55,95,0.4), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.15s; cursor: pointer; letter-spacing: 0.05em; display: block; position: relative; z-index: 5; text-shadow:0 1px 4px rgba(0,0,0,0.3); }
+/* On 狀態 (透過 JS 注入) */
+.chip.on { background: #ff9f0a; color: #fff; border-color: #ff9f0a; box-shadow: 0 4px 16px rgba(255,159,10,0.4); }
+
+.b { width: 100%; border: 0; border-radius: 18px; min-height: 60px; font-weight: 700; font-size: 18px; color: #fff; background: linear-gradient(135deg, #ff9f0a, #ff375f); box-shadow: 0 8px 24px rgba(255,55,95,0.4), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.15s ease; cursor: pointer; letter-spacing: 0.05em; display: block; position: relative; z-index: 5; }
 .b:active { transform: scale(0.96); opacity: 0.9; box-shadow: 0 4px 12px rgba(255,55,95,0.3); }
-.b2 { width: 100%; border: 1px solid rgba(255,255,255,0.25); border-radius: 18px; min-height: 56px; font-weight: 600; font-size: 17px; background: rgba(255,255,255,0.1); color: #fff; transition: all 0.15s; cursor: pointer; display: block; position: relative; z-index: 5; }
+.b2 { width: 100%; border: 1px solid rgba(255,255,255,0.25); border-radius: 18px; min-height: 56px; font-weight: 600; font-size: 17px; background: rgba(255,255,255,0.1); color: #fff; transition: all 0.15s ease; cursor: pointer; display: block; position: relative; z-index: 5; }
 .b2:active { transform: scale(0.96); background: rgba(255,255,255,0.2); }
 
 .topbtns, .seg { display: flex; gap: 12px; flex-wrap: wrap; }
 .seg button { flex: 1; }
-.rec { display: flex; align-items: center; justify-content: center; min-height: 120px; border: 2px dashed rgba(255,255,255,0.25); border-radius: 20px; background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); text-align: center; padding: 20px; transition: all 0.15s; position: relative; z-index: 1; }
-.rec:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
+.rec { display: flex; align-items: center; justify-content: center; min-height: 120px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 20px; background: rgba(0,0,0,0.2); color: #aaa; text-align: center; padding: 20px; transition: all 0.15s ease; position: relative; z-index: 1; }
+.rec:active { background: rgba(0,0,0,0.4); transform: scale(0.98); }
 .k { font-size: 14px; color: rgba(255,255,255,0.7); margin: 0 0 8px 4px; font-weight: 700; letter-spacing: 0.02em; }
 .right { text-align: right; }
-.x { background: rgba(255,255,255,0.15); border: 0; color: #fff; font-size: 24px; line-height: 1; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; transition: all 0.15s; position: relative; z-index: 5; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.x { background: rgba(255,255,255,0.15); border: 0; color: #fff; font-size: 24px; line-height: 1; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; transition: all 0.15s ease; position: relative; z-index: 5; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .x:active { background: rgba(255,255,255,0.3); transform: scale(0.85); }
 
-.toast { position: fixed; top: calc(env(safe-area-inset-top) + 20px); left: 50%; transform: translate(-50%, -20px); background: rgba(20,20,22,0.9); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 0.5px solid rgba(191,90,242,0.5); padding: 16px 28px; border-radius: 100px; font-size: 16px; font-weight: 600; z-index: 200; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.32,0.72,0,1); box-shadow: 0 12px 32px rgba(0,0,0,0.5); white-space: nowrap; color: #fff; }
+.toast { position: fixed; top: calc(env(safe-area-inset-top) + 20px); left: 50%; transform: translate(-50%, -20px); background: rgba(20,20,22,0.9); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 0.5px solid rgba(255,159,10,0.5); padding: 16px 28px; border-radius: 100px; font-size: 16px; font-weight: 600; z-index: 200; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.32,0.72,0,1); box-shadow: 0 12px 32px rgba(0,0,0,0.5); white-space: nowrap; color: #ff9f0a; }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
 .colorRow { display: flex; gap: 14px; align-items: center; }
-.colorSwatch { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; flex: 0 0 auto; display: grid; place-items: center; transition: transform 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.colorSwatch { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; flex: 0 0 auto; display: grid; place-items: center; transition: transform 0.15s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .colorSwatch:active { transform: scale(0.8); }
-.colorInput { width: 64px; height: 44px; padding: 4px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.4); color: #f5f5f5; -webkit-appearance: none; position: relative; z-index: 1; }
+.colorInput { width: 64px; height: 44px; padding: 4px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #f5f5f5; -webkit-appearance: none; position: relative; z-index: 1; }
 
 /* 📱 13 mini 專用優化 */
 @media (max-width:390px){
     .fab { width: 54px; height: 54px; margin-top: -28px; border-width: 3px; }
     .title { font-size: 24px; }
-    .acrylic-card { border-radius: 18px; }
+    .glass-panel { border-radius: 16px; }
     .avatar { width: 38px; height: 38px; }
     .name { font-size: 16px; }
     .amt { font-size: 18px; }
@@ -167,25 +165,20 @@ input[type="datetime-local"] { text-align: left; }
 </style>
 </head>
 <body ontouchstart="">
-<!-- 教堂玻璃紙 五彩底光 -->
 <div class="bg-acrylic"></div>
 
-<!-- 主容器 -->
 <div id="app-container">
-    <!-- 捲動區域 -->
     <div class="scroll-wrapper" id="scroll-area">
         <div id="app-content"></div>
     </div>
 </div>
 
-<!-- 沉底導覽列 -->
 <div class="nav" id="app-nav"></div>
 <div id="toast" class="toast"></div>
 
 <script>
 const APP = {tripId: 'travel-expense-pro'};
-// 教堂玻璃高彩度顏色
-const CATS = [['food', '餐飲', '🍜', '#ff9f0a'],['transport', '交通', '🚄', '#0a84ff'],['shopping', '購物', '🛍', '#bf5af2'],['stay', '住宿', '🏨', '#ff375f'],['ticket', '門票', '🎫', '#30d158'],['medicine', '藥品', '💊', '#64d2ff'],['entertainment', '娛樂', '🎮', '#ff2d55'],['other', '其他', '📦', '#8e8e93']];
+const CATS = [['food', '餐飲', '🍜', '#ff9f0a'],['transport', '交通', '🚄', '#32ade6'],['shopping', '購物', '🛍', '#bf5af2'],['stay', '住宿', '🏨', '#ffd60a'],['ticket', '門票', '🎫', '#30d158'],['medicine', '藥品', '💊', '#64d2ff'],['entertainment', '娛樂', '🎮', '#ff375f'],['other', '其他', '📦', '#8e8e93']];
 const CURS = ['JPY', 'HKD', 'USD', 'CNY', 'KRW', 'TWD', 'SGD', 'EUR'];
 const $ = s => document.querySelector(s);
 const esc = s => (s||'').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
@@ -221,7 +214,6 @@ function calcConsumed() {
     activeExpenses().forEach(e => {
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0;
         if(e.type === 'personal') { 
-            // AA 各自付款邏輯 (純記錄)
             if (e.paidBy !== 'all' && c[e.paidBy] != null) c[e.paidBy] += a; 
         } 
         else {
@@ -243,7 +235,6 @@ function calcBalances() {
         } 
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0; 
         
-        // 各自付款 (AA 純記錄) 跳過所有欠款加減
         if (e.paidBy !== 'all') {
             if(b[e.paidBy] != null) b[e.paidBy] += a;
             const sw = (e.sharedWith && e.sharedWith.length) ? e.sharedWith : members().map(m=>m.id);
@@ -262,7 +253,7 @@ function calcBalances() {
 function calcGrossTransfers() {
     const ow = {}; members().forEach(m => { ow[m.id] = {}; members().forEach(m2 => ow[m.id][m2.id] = 0); });
     activeExpenses().forEach(e => {
-        if(e.type === 'personal' || e.paidBy === 'all') return; // AA純記錄不產生對數
+        if(e.type === 'personal' || e.paidBy === 'all') return;
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0; const cr = e.paidBy; const sw = (e.sharedWith && e.sharedWith.length) ? e.sharedWith : members().map(m=>m.id);
         if(e.splitMode === 'manual' && e.splits) {
             let sT = 0; Object.values(e.splits).forEach(v => sT += (+v||0)); const fR = (e.amount>0 && sT>0) ? (a/sT) : 1;
@@ -280,7 +271,7 @@ function calcGrossTransfers() {
     }); }); return out;
 }
 
-function moneyText(jpy) { const v = (+jpy||0); const hk = (!rates || !rates.rates.HKD) ? '' : ` <span style="font-size:0.75em;color:rgba(255,255,255,0.65);font-weight:600">(HK$${Math.round(v*rates.rates.HKD)})</span>`; return `¥${Math.round(v)}${hk}`; }
+function moneyText(jpy) { const v = (+jpy||0); const hk = (!rates || !rates.rates.HKD) ? '' : ` <span style="font-size:0.7em;color:rgba(255,255,255,0.6);font-weight:600">(HK$${Math.round(v*rates.rates.HKD)})</span>`; return `¥${Math.round(v)}${hk}`; }
 
 function transferRow(t, isBtn=false) {
     const f = members().find(m=>m.id===t.from) || {name:'?',color:'#fff'}; const to = members().find(m=>m.id===t.to) || {name:'?',color:'#fff'};
@@ -289,7 +280,7 @@ function transferRow(t, isBtn=false) {
     const tAv = to.avatar && to.avatar.startsWith('data:image') ? `<img src="${to.avatar}">` : initials(to.name);
     let col = '#fff';
     if(isO) { col = '#30d158'; } else if(iO) { col = '#ff453a'; }
-    return `<div class="acrylic-card" style="margin-bottom:14px;padding:16px;display:flex;align-items:center;justify-content:space-between">
+    return `<div class="glass-panel" style="margin-bottom:14px;padding:16px;display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;position:relative;z-index:3">
             <div class="avatar" style="width:40px;height:40px;border-color:${f.color||'rgba(255,255,255,0.3)'};font-size:14px">${fAv}</div>
             <div style="font-size:16px;font-weight:700;color:${f.color||'#fff'};white-space:nowrap">${iO ? '你' : esc(f.name)}</div>
@@ -298,8 +289,8 @@ function transferRow(t, isBtn=false) {
             <div style="font-size:16px;font-weight:700;color:${to.color||'#fff'};white-space:nowrap">${isO ? '你' : esc(to.name)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:relative;z-index:3">
-            <div class="amt" style="font-size:19px;color:${col};text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(t.amt)}</div>
-            ${isBtn ? `<button class="b" style="width:auto;padding:6px 20px;min-height:0;border-radius:12px;font-size:13px;background:rgba(255,255,255,0.2);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
+            <div class="amt" style="font-size:19px;color:${col}">${moneyText(t.amt)}</div>
+            ${isBtn ? `<button class="b" style="width:auto;padding:6px 20px;min-height:0;border-radius:14px;font-size:13px;background:rgba(255,255,255,0.2);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
         </div>
     </div>`;
 }
@@ -309,10 +300,10 @@ function expenseRow(e) {
     const p = e.paidBy === 'all' ? {name:'各自付款', color:'#ff9f0a'} : (members().find(m=>m.id===e.paidBy) || {name:'?',color:'#fff'});
     return `<div class="listTop" onclick="openExpense('${e.id}')">
         <div style="display:flex;gap:14px;min-width:0;align-items:center">
-            <div style="width:48px;height:48px;border-radius:16px;background:${c[3]}44;display:grid;place-items:center;flex:0 0 auto;font-size:22px;border:1px solid ${c[3]}88;box-shadow:inset 0 1px 2px rgba(255,255,255,0.3)">${c[2]}</div>
-            <div style="min-width:0"><div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:17px">${esc(e.name)}</div><div class="muted"><span style="color:${p.color};font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.4);">${esc(p.name)}</span>${e.location ? ' · ' + esc(e.location) : ''}${e.type==='personal' ? ' · 個人' : ''}</div></div>
+            <div style="width:48px;height:48px;border-radius:16px;background:${c[3]}33;display:grid;place-items:center;flex:0 0 auto;font-size:22px;border:1px solid ${c[3]}88;box-shadow:inset 0 1px 2px rgba(255,255,255,0.2)">${c[2]}</div>
+            <div style="min-width:0"><div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:17px">${esc(e.name)}</div><div class="muted"><span style="color:${p.color};font-weight:700">${esc(p.name)}</span>${e.location ? ' · ' + esc(e.location) : ''}${e.type==='personal' ? ' · 個人' : ''}</div></div>
         </div>
-        <div class="right"><div class="amt" style="text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(+e.amount||0)}</div></div>
+        <div class="right"><div class="amt">${moneyText(+e.amount||0)}</div></div>
     </div>`;
 }
 
@@ -354,16 +345,14 @@ function render() {
             <div>${rateBadge}</div>
         </div>
         <div class="grid2">
-            <!-- 🍷 紅寶石 團隊卡片 -->
-            <div class="acrylic-card acrylic-ruby" style="padding:18px;">
+            <div class="glass-panel acrylic-ruby" style="padding:18px;">
                 <div style="font-size:13px;color:#ff375f;font-weight:800;margin-bottom:6px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(255,55,95,0.4);">🌍 團隊總開支</div>
-                <div style="font-size:26px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.5);">${moneyText(tot)}</div>
+                <div style="font-size:26px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(tot)}</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;position:relative;z-index:3;font-weight:500;">今日新增: ${moneyText(tdT)}</div>
             </div>
-            <!-- 💎 藍寶石 個人卡片 -->
-            <div class="acrylic-card acrylic-sapphire" style="padding:18px;">
+            <div class="glass-panel acrylic-sapphire" style="padding:18px;">
                 <div style="font-size:13px;color:#0a84ff;font-weight:800;margin-bottom:6px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(10,132,255,0.4);">👤 我的實質消費</div>
-                <div style="font-size:26px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.5);">${moneyText(myC)}</div>
+                <div style="font-size:26px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(myC)}</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;position:relative;z-index:3;font-weight:500;">今日: ${moneyText(myT)}</div>
             </div>
         </div>
@@ -371,9 +360,9 @@ function render() {
     <div class="content">`;
 
     if(tab === 'home') {
-        h += `<div class="section"><h2>一對一欠款明細</h2>${aT.length ? aT.map(t=>transferRow(t,false)).join('') : '<div class="acrylic-card"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清，無人爭人錢！</div></div></div>'}</div>`;
+        h += `<div class="section"><h2>一對一欠款明細</h2>${aT.length ? aT.map(t=>transferRow(t,false)).join('') : '<div class="glass-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清，無人爭人錢！</div></div></div>'}</div>`;
         
-        h += `<div class="section"><h2>💸 揮霍排行榜</h2><div class="acrylic-card">${sBd.length ? sBd.map((m,i) => { 
+        h += `<div class="section"><h2>💸 揮霍排行榜</h2><div class="glass-panel">${sBd.length ? sBd.map((m,i) => { 
             let rI = i===0 ? '👑' : i===1 ? '🥈' : i===2 ? '🥉' : `#${i+1}`; 
             let rC = i===0 ? '#ff375f' : i===1 ? '#98989d' : i===2 ? '#bf5af2' : '#8e8e93'; 
             let mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); 
@@ -383,7 +372,7 @@ function render() {
             return `<div class="row"><div style="width:32px;color:${rC};font-weight:800;font-size:${i<3?'22px':'17px'};text-shadow:0 2px 6px rgba(0,0,0,0.3);">${rI}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name">${esc(m.name)}</div><div class="muted">${label}</div></div><div class="amt">${moneyText(m.spent)}</div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費</div></div>'}</div></div>`;
         
-        h += `<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="acrylic-card">${bd.length ? bd.map((m,i) => { 
+        h += `<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="glass-panel">${bd.length ? bd.map((m,i) => { 
             let sT = m.total>1 ? '大債主 🔥' : m.total<-1 ? '爭人錢 💸' : '已結清'; 
             let c = m.total>1 ? '#30d158' : m.total<-1 ? '#ff453a' : '#8e8e93'; 
             let s = m.total>1 ? '+' : ''; 
@@ -391,17 +380,17 @@ function render() {
             return `<div class="row"><div style="width:32px;color:#8e8e93;font-weight:800;font-size:17px;">${i+1}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name">${esc(m.name)}</div><div class="muted">${sT}</div></div><div class="amt" style="color:${c}">${s}${moneyText(m.total)}</div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
         
-        if(ct.length) h += `<div class="section"><h2>開支分類</h2><div class="acrylic-card">${ct.map(c => `<div class="row"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;position:relative;z-index:3"><div style="font-weight:700;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,0.4);">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar" style="position:relative;z-index:3"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('')}</div></div>`;
+        if(ct.length) h += `<div class="section"><h2>開支分類</h2><div class="glass-panel">${ct.map(c => `<div class="row"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;position:relative;z-index:3"><div style="font-weight:700;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,0.4);">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar" style="position:relative;z-index:3"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('')}</div></div>`;
     } 
     else if(tab === 'expenses') {
         const gp = {}; ex.forEach(e => { const d = e.dt ? (e.dt.length>10 ? e.dt.slice(0,10) : e.dt) : '未知'; (gp[d] || (gp[d]=[])).push(e); });
-        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button><button class="b2" onclick="openSheet('receipt')">AI 收據掃描</button></div></div><div class="section"><h2>清單</h2>${Object.keys(gp).sort((a,b)=>b.localeCompare(a)).map(d => `<div style="margin-bottom:24px"><div class="muted" style="margin:0 0 10px 14px;font-weight:700;font-size:14px;letter-spacing:0.02em;">${d}</div><div class="acrylic-card">${gp[d].map(e=>expenseRow(e)).join('')}</div></div>`).join('') || '<div class="acrylic-card"><div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費紀錄</div></div></div>'}</div>`;
+        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button><button class="b2" onclick="openSheet('receipt')">AI 收據掃描</button></div></div><div class="section"><h2>清單</h2>${Object.keys(gp).sort((a,b)=>b.localeCompare(a)).map(d => `<div style="margin-bottom:24px"><div class="muted" style="margin:0 0 10px 14px;font-weight:700;font-size:14px;letter-spacing:0.02em;">${d}</div><div class="glass-panel">${gp[d].map(e=>expenseRow(e)).join('')}</div></div>`).join('') || '<div class="glass-panel"><div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費紀錄</div></div></div>'}</div>`;
     } 
     else if(tab === 'members') {
-        h += `<div class="section" style="margin-top:8px"><h2>旅伴</h2><div class="topbtns"><button class="b2" onclick="openSheet('addMember')">＋ 新增旅伴</button><button class="b2" onclick="openSheet('settings')">系統設定</button></div></div><div class="section"><div class="acrylic-card">${members().length ? members().map(m => { const mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;position:relative;z-index:3"><div class="name">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;position:relative;z-index:3"><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;color:#ff453a;border-color:rgba(255,69,58,0.4)" onclick="delMember('${m.id}')">刪除</button></div></div>`; }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
+        h += `<div class="section" style="margin-top:8px"><h2>旅伴</h2><div class="topbtns"><button class="b2" onclick="openSheet('addMember')">＋ 新增旅伴</button><button class="b2" onclick="openSheet('settings')">系統設定</button></div></div><div class="section"><div class="glass-panel">${members().length ? members().map(m => { const mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;position:relative;z-index:3"><div class="name">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;position:relative;z-index:3"><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;color:#ff453a;border-color:rgba(255,69,58,0.4)" onclick="delMember('${m.id}')">刪除</button></div></div>`; }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
     } 
     else if(tab === 'settle') {
-        h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>${aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="acrylic-card"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清</div></div></div>'}<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div><div class="section"><h2>還款紀錄</h2><div class="acrylic-card">`;
+        h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>${aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="glass-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清</div></div></div>'}<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div><div class="section"><h2>還款紀錄</h2><div class="glass-panel">`;
         if(transfers().length) { h += transfers().map(t => { const f = members().find(m=>m.id===t.from) || {name:'?'}; const to = members().find(m=>m.id===t.to) || {name:'?'}; const dtD = t.dt ? (t.dt.length>16 ? t.dt.replace('T',' ').slice(0,16) : t.dt) : '未知'; return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;border:1px solid rgba(48,209,88,0.4)">💸</div><div><div class="name">${esc(f.name)} 還給 ${esc(to.name)}</div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; }).join(''); } else { h += `<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有還款記錄</div></div>`; }
         h += `</div></div>`;
     }
@@ -409,7 +398,6 @@ function render() {
     h += `</div>`; 
     $('#app-content').innerHTML = h;
 
-    // 重新渲染懸浮島導覽列
     let navHTML = `
     <div class="navin">
         <button class="navbtn ${tab==='home'?'on':''}" onclick="setTab('home')"><div style="font-size:26px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">🏠</div><div class="small">總覽</div></button>
@@ -544,7 +532,7 @@ function forms() {
             : `<option disabled selected>請先新增旅伴</option>`;
             
         const sharedWithCheckboxes = members().length > 0
-            ? members().map(m=>`<label class="row" style="cursor:pointer;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,0.05);margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);"><div class="avatar" style="width:36px;height:36px;background:${m.color||'#bf5af2'}44;border-color:${m.color||'#bf5af2'}88;font-size:14px;">${m.avatar&&m.avatar.startsWith('data:image')?`<img src="${m.avatar}">`:initials(m.name)}</div><div style="flex:1;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div><input type="checkbox" data-share="${m.id}" ${sw.indexOf(m.id)!==-1?'checked':''} style="width:22px;height:22px;accent-color:#bf5af2"></label>`).join('')
+            ? members().map(m=>`<label class="row" style="cursor:pointer;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,0.05);margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);"><div class="avatar" style="width:36px;height:36px;background:${m.color||'#ff9f0a'}44;border-color:${m.color||'#ff9f0a'}88;font-size:14px;">${m.avatar&&m.avatar.startsWith('data:image')?`<img src="${m.avatar}">`:initials(m.name)}</div><div style="flex:1;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div><input type="checkbox" data-share="${m.id}" ${sw.indexOf(m.id)!==-1?'checked':''} style="width:22px;height:22px;accent-color:#ff9f0a"></label>`).join('')
             : `<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4)">請先新增旅伴</div>`;
             
         // 智能變色分類掣
@@ -574,8 +562,8 @@ function forms() {
         
         <div class="k" style="margin-top:16px">類型</div>
         <div class="seg">
-            <button class="chip ${(e?e.type:'shared')==='shared'?'on':''}" data-type="shared" ${(e?e.type:'shared')==='shared'?'style="background:#bf5af2;border-color:#bf5af2;color:#fff;box-shadow:0 4px 16px rgba(191,90,242,0.4)"':''}>共同分帳</button>
-            <button class="chip ${(e?e.type:'shared')==='personal'?'on':''}" data-type="personal" ${(e?e.type:'shared')==='personal'?'style="background:#bf5af2;border-color:#bf5af2;color:#fff;box-shadow:0 4px 16px rgba(191,90,242,0.4)"':''}>個人消費</button>
+            <button class="chip ${(e?e.type:'shared')==='shared'?'on':''}" data-type="shared" ${(e?e.type:'shared')==='shared'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>共同分帳</button>
+            <button class="chip ${(e?e.type:'shared')==='personal'?'on':''}" data-type="personal" ${(e?e.type:'shared')==='personal'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>個人消費</button>
         </div>
         
         <div class="k" style="margin-top:20px">付款人</div>
@@ -585,15 +573,15 @@ function forms() {
         </select>
         
         <div class="k" style="margin-top:20px">分擔人</div>
-        <div class="acrylic-card" style="padding:4px;">${sharedWithCheckboxes}</div>
+        <div class="glass-panel" style="padding:4px;">${sharedWithCheckboxes}</div>
         
         <div class="k" style="margin-top:20px">分帳方式</div>
         <div class="seg">
-            <button class="chip ${(e?e.splitMode:'equal')==='equal'?'on':''}" data-split="equal" ${(e?e.splitMode:'equal')==='equal'?'style="background:#bf5af2;border-color:#bf5af2;color:#fff;box-shadow:0 4px 16px rgba(191,90,242,0.4)"':''}>平均分</button>
-            <button class="chip ${(e?e.splitMode:'equal')==='manual'?'on':''}" data-split="manual" ${(e?e.splitMode:'equal')==='manual'?'style="background:#bf5af2;border-color:#bf5af2;color:#fff;box-shadow:0 4px 16px rgba(191,90,242,0.4)"':''}>手動輸入</button>
+            <button class="chip ${(e?e.splitMode:'equal')==='equal'?'on':''}" data-split="equal" ${(e?e.splitMode:'equal')==='equal'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>平均分</button>
+            <button class="chip ${(e?e.splitMode:'equal')==='manual'?'on':''}" data-split="manual" ${(e?e.splitMode:'equal')==='manual'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>手動輸入</button>
         </div>
         <div id="manualArea" style="margin-top:16px;display:${(e?e.splitMode:'equal')==='manual'?'block':'none'}">
-            <div class="acrylic-card">
+            <div class="glass-panel">
                 ${members().filter(m=>sw.indexOf(m.id)!==-1).map(m=>`<div class="row" style="padding:14px 16px"><div style="width:90px;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div><input class="input split" data-mid="${m.id}" type="number" placeholder="0" value="${e&&e.splits&&e.splits[m.id]?e.splits[m.id]:''}"></div>`).join('')}
             </div>
         </div>
@@ -625,7 +613,7 @@ function forms() {
 function viewExpense(e) {
     const c = findCat(e.cat);
     // 🔥 顯示「各自付款」
-    const p = e.paidBy === 'all' ? {name:'各自付款 (純記錄)', color:'#bf5af2'} : (members().find(m=>m.id===e.paidBy) || {name:'?',color:'#fff'});
+    const p = e.paidBy === 'all' ? {name:'各自付款 (純記錄)', color:'#ff9f0a'} : (members().find(m=>m.id===e.paidBy) || {name:'?',color:'#fff'});
     const sw = [];
     if(e.sharedWith && e.sharedWith.length) {
         e.sharedWith.forEach(id => {
@@ -642,7 +630,7 @@ function viewExpense(e) {
     }
     
     return `
-    <div class="acrylic-card">
+    <div class="glass-panel">
         <div class="row" style="align-items:flex-start;padding:28px 20px">
             <div style="width:60px;height:60px;border-radius:20px;background:${c[3]}33;display:grid;place-items:center;font-size:32px;box-shadow:inset 0 1px 3px rgba(255,255,255,0.2), 0 6px 16px rgba(0,0,0,0.3); border:1px solid ${c[3]}88">${c[2]}</div>
             <div style="flex:1;position:relative;z-index:3">
@@ -653,7 +641,7 @@ function viewExpense(e) {
         </div>
         <div class="listTop"><div class="muted">類別</div><span class="tag" style="font-size:14px">${c[2]} ${c[1]}</span></div>
         <div class="listTop"><div class="muted">類型</div><div style="font-weight:700;font-size:16px;position:relative;z-index:3">${e.type==='personal'?'個人消費':'共同分帳'}</div></div>
-        <div class="listTop"><div class="muted">付款人</div><div style="color:${p.color};font-weight:800;font-size:18px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${esc(p.name)}</div></div>
+        <div class="listTop"><div class="muted">付款人</div><div style="color:${p.color};font-weight:800;font-size:17px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${esc(p.name)}</div></div>
         <div class="listTop" style="flex-wrap:wrap"><div class="muted">分擔人</div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;position:relative;z-index:3">${sw.map(m=>`<span class="tag" style="color:${m.color};font-size:14px;">${esc(m.name)}</span>`).join('')}</div></div>
         ${e.note ? `<div class="divider"></div><div class="row" style="border:none;padding-top:0"><div><div class="muted" style="margin-bottom:8px">備註</div><div style="white-space:pre-wrap;font-size:17px;line-height:1.5;position:relative;z-index:3;font-weight:500">${esc(e.note)}</div></div></div>` : ''} 
         ${hHtml ? `<div style="padding:0 16px 20px">${hHtml}</div>` : ''}
@@ -666,7 +654,7 @@ function viewExpense(e) {
 }
 
 function settings() {
-    return `<div class="acrylic-card"><div class="row"><div style="flex:1;position:relative;z-index:3"><div class="name">分享連結</div><div class="muted">傳送俾朋友</div></div><button class="b2" style="width:auto;padding:0 24px" onclick="copyLink()">複製</button></div></div><div style="margin-top:40px"><button class="b" style="background:linear-gradient(135deg,#ff453a,#bf2c24);box-shadow:0 10px 24px rgba(255,69,58,0.4);" onclick="resetAllData()">⚠️ 清除所有資料</button></div>`;
+    return `<div class="glass-panel"><div class="row"><div style="flex:1;position:relative;z-index:3"><div class="name">分享連結</div><div class="muted">傳送俾朋友</div></div><button class="b2" style="width:auto;padding:0 24px" onclick="copyLink()">複製</button></div></div><div style="margin-top:40px"><button class="b" style="background:linear-gradient(135deg,#ff453a,#bf2c24);box-shadow:0 10px 24px rgba(255,69,58,0.4);" onclick="resetAllData()">⚠️ 清除所有資料</button></div>`;
 }
 
 async function compressImage(file, maxWidth=800) {
@@ -713,7 +701,7 @@ function bindSheet() {
                     inner += `<div class="row" style="padding:14px 16px"><div style="width:90px;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(x.name)}</div><input class="input split" data-mid="${x.id}" type="number" placeholder="0"></div>`;
                 }
             });
-            m.innerHTML = `<div class="acrylic-card">${inner}</div>`;
+            m.innerHTML = `<div class="glass-panel">${inner}</div>`;
         }
     });
     
@@ -730,15 +718,15 @@ function bindSheet() {
         }
     });
     
-    // 類型 / 分帳方式 (全轉 紫色)
+    // 類型 / 分帳方式 (全轉 橙色)
     document.querySelectorAll('.seg .chip').forEach(ch => ch.onclick = () => {
         const parent = ch.parentElement;
         parent.querySelectorAll('.chip').forEach(x => { x.classList.remove('on'); x.style.background=''; x.style.borderColor=''; x.style.color=''; x.style.boxShadow=''; });
         ch.classList.add('on');
-        ch.style.background = '#bf5af2';
-        ch.style.borderColor = '#bf5af2';
+        ch.style.background = '#ff9f0a';
+        ch.style.borderColor = '#ff9f0a';
         ch.style.color = '#fff';
-        ch.style.boxShadow = '0 4px 16px rgba(191,90,242,0.4)';
+        ch.style.boxShadow = '0 4px 16px rgba(255,159,10,0.4)';
         
         const dS = ch.dataset.split;
         if(dS) {
@@ -757,7 +745,7 @@ function saveMember() {
     const isW = lN.indexOf('wai lok')!==-1 || lN.indexOf('li wai lok')!==-1 || lN.indexOf('毛盈盈')!==-1;
     
     if(isR) alert("⚠️ 系統廣播：偵測到 13 mini 用家 Ricky 🐢 爬咗入群組！\n\n喂馮梓淇，知你平時做嘢慢吞吞，今次去日本找數俾錢記得爽手啲，唔好要大家催呀！");
-    else if(isE) alert("🍝 系統廣播：偵測到 16 Pro 意粉出沒注意！\n\nEthan，去到日本就咪鬼再日日食意粉啦，留返啲 Quota 食和牛好過啦！記住準時找數呀！");
+    else if(isE) alert("🍝 系統廣播：偵測到 16 Pro 意粉出沒注意！\n\nEthan，去到日本就咪鬼再日日食意粉啦，留返啲 Quota食和牛好過啦！記住準時找數呀！");
     else if(isW) alert("👰 系統廣播：偵測到 13 mini 偉樂駕到！\n\nWai Lok，帶埋老婆去旅行定係點呀？幫毛盈盈買手信記得自己出錢，唔好入公數呀！");
     else alert("📱 系統廣播：歡迎 17 Pro Max 尊貴用家加入！");
     
@@ -900,3 +888,4 @@ boot();
 </script>
 </body>
 </html>
+
