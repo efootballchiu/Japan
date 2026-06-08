@@ -11,7 +11,7 @@
 input, textarea, .select {-webkit-user-select:auto;user-select:auto;}
 html,body{height:100%;height:100dvh;width:100vw;overflow:hidden;background:#050508;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
 
-/* ⛪ 教堂玻璃紙 五彩底光 */
+/* ⛪ 教堂玻璃紙 五彩底光 (推高至頂部，令頂部過渡更自然) */
 .bg-acrylic {
     position: fixed; inset: -10% 0 0 0; z-index: 0; pointer-events: none;
     background-color: #050508;
@@ -41,13 +41,8 @@ body.sheet-open #app-container{transform:scale(0.92) translateY(12px);border-rad
 .section{margin:28px 0}
 .section h2{font-size:13px;color:rgba(255,255,255,0.7);text-transform:uppercase;margin:0 0 10px 12px;font-weight:600;letter-spacing:0.05em;text-shadow:0 1px 4px rgba(0,0,0,0.5);}
 
-/* 🪞 高透光度亞克力卡片 (轉為 Button 封底，強迫 iOS Safari 支援點擊) */
+/* 🪞 高透光度亞克力卡片 (通用) */
 .acrylic-card {
-    display: block;
-    width: 100%;
-    text-align: left;
-    color: inherit;
-    font: inherit;
     background: rgba(255, 255, 255, 0.05);
     -webkit-backdrop-filter: blur(28px) saturate(180%);
     backdrop-filter: blur(28px) saturate(180%);
@@ -57,25 +52,15 @@ body.sheet-open #app-container{transform:scale(0.92) translateY(12px);border-rad
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
     transition: transform 0.15s ease, background 0.15s ease;
     overflow: hidden;
-    cursor: pointer;
 }
-.acrylic-card:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.1); }
 
-/* 緊湊名單專用面板 */
-.acrylic-list-panel {
-    background: rgba(255, 255, 255, 0.05);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    backdrop-filter: blur(28px) saturate(180%);
-    border-radius: 20px;
-    position: relative;
-    border: 0.5px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
-    overflow: hidden;
-}
+/* 點擊效果 */
+.clickable-card { cursor: pointer; display: block; width: 100%; text-align: left; color: inherit; font: inherit; }
+.clickable-card:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.1); }
 
 /* 💎 透明螢光粉紅與螢光藍頂部卡片 */
-.acrylic-ruby { background: rgba(255, 45, 85, 0.12); border-color: rgba(255, 45, 85, 0.3); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(255, 45, 85, 0.2); }
-.acrylic-sapphire { background: rgba(50, 173, 230, 0.12); border-color: rgba(50, 173, 230, 0.3); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(50, 173, 230, 0.2); }
+.acrylic-pink { background: rgba(255, 45, 85, 0.12); border-color: rgba(255, 45, 85, 0.3); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(255, 45, 85, 0.2); }
+.acrylic-blue { background: rgba(50, 173, 230, 0.12); border-color: rgba(50, 173, 230, 0.3); box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(50, 173, 230, 0.2); }
 
 .row, .listTop { display: flex; align-items: center; gap: 14px; padding: 18px 16px; position: relative; z-index: 3; transition: background 0.15s; cursor: pointer; }
 .row:not(:last-child)::after, .listTop:not(:last-child)::after { content: ""; position: absolute; bottom: 0; left: 16px; right: 16px; height: 1px; background: rgba(255, 255, 255, 0.06); }
@@ -111,7 +96,7 @@ body.sheet-open .nav { transform: translateY(100%); }
 .navbtn:active { transform: scale(0.85); background: rgba(255,255,255,0.1); } 
 .navbtn.on { color: #fff; text-shadow: 0 0 12px rgba(255, 255, 255, 0.6); }
 .navbtn .small { font-weight: 700; font-size: 11px; pointer-events: none; }
-.fab { width: 60px; height: 60px; border-radius: 50%; margin-top: -34px; background: linear-gradient(135deg, #ff9f0a, #ff375f); box-shadow: 0 8px 24px rgba(255,159,10,0.5), inset 0 2px 4px rgba(255,255,255,0.4); display: grid; place-items: center; color: #fff; font-size: 32px; font-weight: 300; border: 4px solid rgba(15,15,18,0.9); position: relative; z-index: 2; transition: transform 0.15s ease; }
+.fab { width: 60px; height: 60px; border-radius: 50%; margin-top: -34px; background: linear-gradient(135deg, #bf5af2, #0a84ff); box-shadow: 0 8px 24px rgba(191,90,242,0.5), inset 0 2px 4px rgba(255,255,255,0.4); display: grid; place-items: center; color: #fff; font-size: 32px; font-weight: 300; border: 4px solid rgba(15,15,18,0.9); position: relative; z-index: 2; transition: transform 0.15s; }
 .navbtn:active .fab { transform: scale(0.85) translateY(4px); }
 
 /* 🍏 彈出視窗 Sheet */
@@ -135,9 +120,9 @@ body.sheet-open .nav { transform: translateY(100%); }
 .sheethead { padding: 8px 20px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; position: relative; z-index: 3; }
 .sheetbody { padding: 0 20px; overflow-y: auto; overflow-x: hidden; min-height: 0; -webkit-overflow-scrolling: touch; position: relative; z-index: 3; }
 
-/* 表單高透玻璃框：改為白底 */
+/* 表單高透玻璃框：改為高透明白底，取代黑底 */
 .input, .select, .textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 18px; color: #fff; font: inherit; font-size: 16px; outline: none; transition: all 0.2s; -webkit-appearance: none; appearance: none; display: block; position: relative; z-index: 1; box-shadow: inset 0 2px 6px rgba(0,0,0,0.1); }
-.input:focus, .select:focus, .textarea:focus { border-color: #ff9f0a; background: rgba(255,255,255,0.1); box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), 0 0 0 3px rgba(255,159,10,0.25); }
+.input:focus, .select:focus, .textarea:focus { border-color: #ff9f0a; background: rgba(255,255,255,0.08); box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), 0 0 0 3px rgba(255,159,10,0.25); }
 .select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23fff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
 input[type="datetime-local"] { text-align: left; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -148,18 +133,18 @@ input[type="datetime-local"] { text-align: left; }
 .chip { flex-shrink: 0; padding: 14px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #ddd; font-weight: 600; font-size: 15px; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); position: relative; z-index: 1; text-shadow:0 1px 2px rgba(0,0,0,0.5); }
 .chip:active { transform: scale(0.92); opacity: 0.8; }
 
-/* 共同分帳、平均分等全部切換為主要橙色 */
+/* 全域主按鈕顏色 */
 .chip.on { background: #ff9f0a; color: #fff; border-color: #ff9f0a; box-shadow: 0 4px 16px rgba(255,159,10,0.4); }
 
-.b { width: 100%; border: 0; border-radius: 18px; min-height: 60px; font-weight: 700; font-size: 18px; color: #fff; background: linear-gradient(135deg, #ff9f0a, #ff375f); box-shadow: 0 8px 24px rgba(255,55,95,0.4), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.15s ease; cursor: pointer; letter-spacing: 0.05em; display: block; position: relative; z-index: 5; text-shadow:0 1px 4px rgba(0,0,0,0.3); }
-.b:active { transform: scale(0.96); opacity: 0.9; box-shadow: 0 4px 12px rgba(255,55,95,0.3); }
+.b { width: 100%; border: 0; border-radius: 18px; min-height: 60px; font-weight: 700; font-size: 18px; color: #fff; background: linear-gradient(135deg, #bf5af2, #0a84ff); box-shadow: 0 8px 24px rgba(10,132,255,0.4), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.15s ease; cursor: pointer; letter-spacing: 0.05em; display: block; position: relative; z-index: 5; text-shadow:0 1px 4px rgba(0,0,0,0.3); }
+.b:active { transform: scale(0.96); opacity: 0.9; box-shadow: 0 4px 12px rgba(10,132,255,0.3); }
 .b2 { width: 100%; border: 1px solid rgba(255,255,255,0.25); border-radius: 18px; min-height: 56px; font-weight: 600; font-size: 17px; background: rgba(255,255,255,0.1); color: #fff; transition: all 0.15s ease; cursor: pointer; display: block; position: relative; z-index: 5; }
 .b2:active { transform: scale(0.96); background: rgba(255,255,255,0.2); }
 
 .topbtns, .seg { display: flex; gap: 12px; flex-wrap: wrap; }
 .seg button { flex: 1; }
-.rec { display: flex; align-items: center; justify-content: center; min-height: 120px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 20px; background: rgba(0,0,0,0.2); color: #aaa; text-align: center; padding: 20px; transition: all 0.15s ease; position: relative; z-index: 1; }
-.rec:active { background: rgba(0,0,0,0.4); transform: scale(0.98); }
+.rec { display: flex; align-items: center; justify-content: center; min-height: 120px; border: 2px dashed rgba(255,255,255,0.25); border-radius: 20px; background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); text-align: center; padding: 20px; transition: all 0.15s ease; position: relative; z-index: 1; }
+.rec:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
 .k { font-size: 14px; color: rgba(255,255,255,0.7); margin: 0 0 8px 4px; font-weight: 700; letter-spacing: 0.02em; }
 .right { text-align: right; }
 .x { background: rgba(255,255,255,0.15); border: 0; color: #fff; font-size: 24px; line-height: 1; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; transition: all 0.15s ease; position: relative; z-index: 5; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
@@ -170,13 +155,13 @@ input[type="datetime-local"] { text-align: left; }
 .colorRow { display: flex; gap: 14px; align-items: center; }
 .colorSwatch { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; flex: 0 0 auto; display: grid; place-items: center; transition: transform 0.15s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .colorSwatch:active { transform: scale(0.8); }
-.colorInput { width: 64px; height: 44px; padding: 4px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.4); color: #f5f5f5; -webkit-appearance: none; position: relative; z-index: 1; }
+.colorInput { width: 64px; height: 44px; padding: 4px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #f5f5f5; -webkit-appearance: none; position: relative; z-index: 1; }
 
 /* 📱 13 mini 專用優化 */
 @media (max-width:390px){
     .fab { width: 54px; height: 54px; margin-top: -28px; border-width: 3px; }
     .title { font-size: 24px; }
-    .acrylic-list-panel { border-radius: 16px; }
+    .acrylic-card { border-radius: 18px; }
     .avatar { width: 38px; height: 38px; }
     .name { font-size: 16px; }
     .amt { font-size: 18px; }
@@ -301,8 +286,8 @@ function transferRow(t, isBtn=false) {
     const fAv = f.avatar && f.avatar.startsWith('data:image') ? `<img src="${f.avatar}">` : initials(f.name);
     const tAv = to.avatar && to.avatar.startsWith('data:image') ? `<img src="${to.avatar}">` : initials(to.name);
     let col = '#fff';
-    if(isO) { col = '#30d158'; } else if(iO) { col = '#ff453a'; }
-    return `<div class="acrylic-list-panel" style="margin-bottom:14px;padding:16px;display:flex;align-items:center;justify-content:space-between">
+    if(isO) { col = '#30d158'; } else if(iO) { col = '#ff375f'; }
+    return `<div class="acrylic-card" style="margin-bottom:14px;padding:16px;display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;position:relative;z-index:3">
             <div class="avatar" style="width:40px;height:40px;border-color:${f.color||'rgba(255,255,255,0.3)'};font-size:14px">${fAv}</div>
             <div style="font-size:16px;font-weight:700;color:${f.color||'#fff'};white-space:nowrap">${iO ? '你' : esc(f.name)}</div>
@@ -311,8 +296,8 @@ function transferRow(t, isBtn=false) {
             <div style="font-size:16px;font-weight:700;color:${to.color||'#fff'};white-space:nowrap">${isO ? '你' : esc(to.name)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:relative;z-index:3">
-            <div class="amt" style="font-size:19px;color:${col}">${moneyText(t.amt)}</div>
-            ${isBtn ? `<button class="b" style="width:auto;padding:6px 20px;min-height:0;border-radius:14px;font-size:14px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
+            <div class="amt" style="font-size:19px;color:${col};text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(t.amt)}</div>
+            ${isBtn ? `<button class="b" style="width:auto;padding:6px 20px;min-height:0;border-radius:14px;font-size:13px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
         </div>
     </div>`;
 }
@@ -322,7 +307,7 @@ function expenseRow(e) {
     const p = e.paidBy === 'all' ? {name:'各自付款', color:'#ff9f0a'} : (members().find(m=>m.id===e.paidBy) || {name:'?',color:'#fff'});
     return `<div class="listTop" onclick="openExpense('${e.id}')">
         <div style="display:flex;gap:14px;min-width:0;align-items:center">
-            <div style="width:48px;height:48px;border-radius:16px;background:${c[3]}33;display:grid;place-items:center;flex:0 0 auto;font-size:22px;border:1px solid ${c[3]}88;box-shadow:inset 0 1px 2px rgba(255,255,255,0.3)">${c[2]}</div>
+            <div style="width:48px;height:48px;border-radius:16px;background:${c[3]}33;display:grid;place-items:center;flex:0 0 auto;font-size:22px;border:1px solid ${c[3]}88;box-shadow:inset 0 1px 2px rgba(255,255,255,0.2)">${c[2]}</div>
             <div style="min-width:0"><div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:17px">${esc(e.name)}</div><div class="muted"><span style="color:${p.color};font-weight:700">${esc(p.name)}</span>${e.location ? ' · ' + esc(e.location) : ''}${e.type==='personal' ? ' · 個人' : ''}</div></div>
         </div>
         <div class="right"><div class="amt" style="text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(+e.amount||0)}</div></div>
@@ -332,7 +317,7 @@ function expenseRow(e) {
 // 緊湊版消費清單 (用於點擊頂部卡片後顯示)
 function renderCompactExpenseList(listType) {
     const ex = activeExpenses().sort((a,b) => b.dt.localeCompare(a.dt));
-    let html = '<div class="acrylic-list-panel">';
+    let html = '<div class="acrylic-card">';
     let count = 0;
     const myI = state.me;
 
@@ -418,24 +403,24 @@ function render() {
             <div>${rateBadge}</div>
         </div>
         <div class="grid2">
-            <button class="acrylic-card acrylic-ruby" style="padding:18px;" onclick="openSheet('groupExpenses')" type="button">
+            <div class="acrylic-card clickable-card acrylic-ruby" style="padding:18px;" onclick="openSheet('groupExpenses')">
                 <div style="font-size:13px;color:#ff375f;font-weight:800;margin-bottom:6px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(255,55,95,0.4);">🌍 團隊總開支</div>
-                <div style="font-size:24px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(tot)}</div>
+                <div style="font-size:26px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(tot)}</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;position:relative;z-index:3;font-weight:500;">今日新增: ${moneyText(tdT)}</div>
-            </button>
-            <button class="acrylic-card acrylic-sapphire" style="padding:18px;" onclick="openSheet('personalExpenses')" type="button">
+            </div>
+            <div class="acrylic-card clickable-card acrylic-sapphire" style="padding:18px;" onclick="openSheet('personalExpenses')">
                 <div style="font-size:13px;color:#0a84ff;font-weight:800;margin-bottom:6px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(10,132,255,0.4);">👤 我的實質消費</div>
-                <div style="font-size:24px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(myC)}</div>
+                <div style="font-size:26px;font-weight:800;color:#fff;position:relative;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(myC)}</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;position:relative;z-index:3;font-weight:500;">今日: ${moneyText(myT)}</div>
-            </button>
+            </div>
         </div>
     </div>
     <div class="content">`;
 
     if(tab === 'home') {
-        h += `<div class="section"><h2>一對一欠款明細</h2>${aT.length ? aT.map(t=>transferRow(t,false)).join('') : '<div class="acrylic-list-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清，無人爭人錢！</div></div></div>'}</div>`;
+        h += `<div class="section"><h2>一對一欠款明細</h2>${aT.length ? aT.map(t=>transferRow(t,false)).join('') : '<div class="acrylic-card"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清，無人爭人錢！</div></div></div>'}</div>`;
         
-        h += `<div class="section"><h2>💸 揮霍排行榜</h2><div class="acrylic-list-panel">${sBd.length ? sBd.map((m,i) => { 
+        h += `<div class="section"><h2>💸 揮霍排行榜</h2><div class="acrylic-card">${sBd.length ? sBd.map((m,i) => { 
             let rI = i===0 ? '👑' : i===1 ? '🥈' : i===2 ? '🥉' : `#${i+1}`; 
             let rC = i===0 ? '#ff375f' : i===1 ? '#98989d' : i===2 ? '#bf5af2' : '#8e8e93'; 
             let mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); 
@@ -445,7 +430,7 @@ function render() {
             return `<div class="row"><div style="width:32px;color:${rC};font-weight:800;font-size:${i<3?'22px':'17px'};text-shadow:0 2px 6px rgba(0,0,0,0.3);">${rI}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name">${esc(m.name)}</div><div class="muted">${label}</div></div><div class="amt">${moneyText(m.spent)}</div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費</div></div>'}</div></div>`;
         
-        h += `<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="acrylic-list-panel">${bd.length ? bd.map((m,i) => { 
+        h += `<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="acrylic-card">${bd.length ? bd.map((m,i) => { 
             let sT = m.total>1 ? '大債主 🔥' : m.total<-1 ? '爭人錢 💸' : '已結清'; 
             let c = m.total>1 ? '#30d158' : m.total<-1 ? '#ff453a' : '#8e8e93'; 
             let s = m.total>1 ? '+' : ''; 
@@ -453,17 +438,17 @@ function render() {
             return `<div class="row"><div style="width:32px;color:#8e8e93;font-weight:800;font-size:17px;">${i+1}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name">${esc(m.name)}</div><div class="muted">${sT}</div></div><div class="amt" style="color:${c}">${s}${moneyText(m.total)}</div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
         
-        if(ct.length) h += `<div class="section"><h2>開支分類</h2><div class="acrylic-list-panel">${ct.map(c => `<div class="row"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;position:relative;z-index:3"><div style="font-weight:700;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,0.4);">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar" style="position:relative;z-index:3"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('')}</div></div>`;
+        if(ct.length) h += `<div class="section"><h2>開支分類</h2><div class="acrylic-card">${ct.map(c => `<div class="row"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;position:relative;z-index:3"><div style="font-weight:700;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,0.4);">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar" style="position:relative;z-index:3"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('')}</div></div>`;
     } 
     else if(tab === 'expenses') {
         const gp = {}; ex.forEach(e => { const d = e.dt ? (e.dt.length>10 ? e.dt.slice(0,10) : e.dt) : '未知'; (gp[d] || (gp[d]=[])).push(e); });
-        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button><button class="b2" onclick="openSheet('receipt')">AI 收據掃描</button></div></div><div class="section"><h2>清單</h2>${Object.keys(gp).sort((a,b)=>b.localeCompare(a)).map(d => `<div style="margin-bottom:24px"><div class="muted" style="margin:0 0 10px 14px;font-weight:700;font-size:14px;letter-spacing:0.02em;">${d}</div><div class="acrylic-list-panel">${gp[d].map(e=>expenseRow(e)).join('')}</div></div>`).join('') || '<div class="acrylic-list-panel"><div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費紀錄</div></div></div>'}</div>`;
+        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button><button class="b2" onclick="openSheet('receipt')">AI 收據掃描</button></div></div><div class="section"><h2>清單</h2>${Object.keys(gp).sort((a,b)=>b.localeCompare(a)).map(d => `<div style="margin-bottom:24px"><div class="muted" style="margin:0 0 10px 14px;font-weight:700;font-size:14px;letter-spacing:0.02em;">${d}</div><div class="acrylic-card">${gp[d].map(e=>expenseRow(e)).join('')}</div></div>`).join('') || '<div class="acrylic-card"><div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費紀錄</div></div></div>'}</div>`;
     } 
     else if(tab === 'members') {
-        h += `<div class="section" style="margin-top:8px"><h2>旅伴</h2><div class="topbtns"><button class="b2" onclick="openSheet('addMember')">＋ 新增旅伴</button><button class="b2" onclick="openSheet('settings')">系統設定</button></div></div><div class="section"><div class="acrylic-list-panel">${members().length ? members().map(m => { const mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;position:relative;z-index:3"><div class="name">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;position:relative;z-index:3"><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;color:#ff453a;border-color:rgba(255,69,58,0.4)" onclick="delMember('${m.id}')">刪除</button></div></div>`; }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
+        h += `<div class="section" style="margin-top:8px"><h2>旅伴</h2><div class="topbtns"><button class="b2" onclick="openSheet('addMember')">＋ 新增旅伴</button><button class="b2" onclick="openSheet('settings')">系統設定</button></div></div><div class="section"><div class="acrylic-card">${members().length ? members().map(m => { const mAv = m.avatar && m.avatar.startsWith('data:image') ? `<img src="${m.avatar}">` : initials(m.name); return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;position:relative;z-index:3"><div class="name">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;position:relative;z-index:3"><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;color:#ff453a;border-color:rgba(255,69,58,0.4)" onclick="delMember('${m.id}')">刪除</button></div></div>`; }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>'}</div></div>`;
     } 
     else if(tab === 'settle') {
-        h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>${aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="acrylic-list-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清</div></div></div>'}<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div><div class="section"><h2>還款紀錄</h2><div class="acrylic-list-panel">`;
+        h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>${aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="acrylic-card"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清</div></div></div>'}<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div><div class="section"><h2>還款紀錄</h2><div class="acrylic-card">`;
         if(transfers().length) { h += transfers().map(t => { const f = members().find(m=>m.id===t.from) || {name:'?'}; const to = members().find(m=>m.id===t.to) || {name:'?'}; const dtD = t.dt ? (t.dt.length>16 ? t.dt.replace('T',' ').slice(0,16) : t.dt) : '未知'; return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;border:1px solid rgba(48,209,88,0.4)">💸</div><div><div class="name">${esc(f.name)} 還給 ${esc(to.name)}</div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; }).join(''); } else { h += `<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有還款記錄</div></div>`; }
         h += `</div></div>`;
     }
@@ -493,7 +478,7 @@ function setTab(t) {
 }
 
 function switchMe(id) {
-    if(state.me === id) return toast('已經 be 目前身份');
+    if(state.me === id) return toast('已經是目前身份');
     const tm = members().find(m=>m.id===id); if(!tm) return;
     if(tm.pwd) {
         const pwd = prompt(`🔒 請輸入 ${tm.name} 的專屬密碼：\n(或 Admin 密碼)`);
@@ -535,7 +520,6 @@ function sheetTitle() {
     }[sheet] || '';
 }
 
-// 修正：隱藏入口呼叫
 function sheetBody() {
     const ex = expenses().find(x=>x.id===editId);
     let html = '';
@@ -611,12 +595,10 @@ function forms() {
             ? members().map(m=>`<option value="${m.id}" ${(e?e.paidBy:m.id)===m.id?'selected':''}>${esc(m.name)}</option>`).join('')
             : `<option disabled selected>請先新增旅伴</option>`;
             
-        // 🧡 剔號轉用主要橙色
         const sharedWithCheckboxes = members().length > 0
             ? members().map(m=>`<label class="row" style="cursor:pointer;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,0.05);margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);"><div class="avatar" style="width:36px;height:36px;background:${m.color||'#ff9f0a'}44;border-color:${m.color||'#ff9f0a'}88;font-size:14px;">${m.avatar&&m.avatar.startsWith('data:image')?`<img src="${m.avatar}">`:initials(m.name)}</div><div style="flex:1;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div><input type="checkbox" data-share="${m.id}" ${sw.indexOf(m.id)!==-1?'checked':''} style="width:22px;height:22px;accent-color:#ff9f0a"></label>`).join('')
             : `<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4)">請先新增旅伴</div>`;
             
-        // 🌈 類別維持獨立色彩
         const catListHTML = CATS.map(c => {
             const isOn = c[0] === (e ? e.cat : 'food');
             const style = isOn ? `style="background:${c[3]};color:#fff;border-color:${c[3]};box-shadow:0 4px 16px ${c[3]}66"` : '';
@@ -654,7 +636,7 @@ function forms() {
         </select>
         
         <div class="k" style="margin-top:20px">分擔人</div>
-        <div class="acrylic-list-panel" style="padding:4px;">${sharedWithCheckboxes}</div>
+        <div class="acrylic-card" style="padding:4px;">${sharedWithCheckboxes}</div>
         
         <div class="k" style="margin-top:20px">分帳方式</div>
         <div class="seg">
@@ -662,7 +644,7 @@ function forms() {
             <button class="chip ${(e?e.splitMode:'equal')==='manual'?'on':''}" data-split="manual" ${(e?e.splitMode:'equal')==='manual'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>手動輸入</button>
         </div>
         <div id="manualArea" style="margin-top:16px;display:${(e?e.splitMode:'equal')==='manual'?'block':'none'}">
-            <div class="acrylic-list-panel">
+            <div class="acrylic-card">
                 ${members().filter(m=>sw.indexOf(m.id)!==-1).map(m=>`<div class="row" style="padding:14px 16px"><div style="width:90px;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div><input class="input split" data-mid="${m.id}" type="number" placeholder="0" value="${e&&e.splits&&e.splits[m.id]?e.splits[m.id]:''}"></div>`).join('')}
             </div>
         </div>
@@ -693,7 +675,7 @@ function forms() {
 
 function viewExpense(e) {
     const c = findCat(e.cat);
-    const p = e.paidBy === 'all' ? {name:'各自付款 (純記錄)', color:#ff9f0a'} : (members().find(m=>m.id===e.paidBy) || {name:'?',color:#fff'});
+    const p = e.paidBy === 'all' ? {name:'各自付款 (純記錄)', color:'#ff9f0a'} : (members().find(m=>m.id===e.paidBy) || {name:'?',color:'#fff'});
     const sw = [];
     if(e.sharedWith && e.sharedWith.length) {
         e.sharedWith.forEach(id => {
@@ -706,11 +688,11 @@ function viewExpense(e) {
     
     let hHtml = ''; 
     if(e.editHistory && e.editHistory.length > 0) {
-        hHtml = `<div class="divider"></div><div class="row" style="padding:0;border:none;"><div style="width:100%"><div class="muted" style="color:#ff453a;font-weight:700;margin-bottom:10px">⚠️ 修改紀錄</div>${e.editHistory.map(h=>{const ed=members().find(m=>m.id===h.by)||{name:'未知',color:#fff'};return `<div style="font-size:13px;color:#ccc;margin-top:10px;padding:14px;background:rgba(255,255,255,0.08);border-radius:14px;position:relative;z-index:3;box-shadow:inset 0 1px 2px rgba(0,0,0,0.2)">[${new Date(h.ts).toLocaleString()}] <span style="color:${ed.color};font-weight:700">${esc(ed.name)}</span> ${esc(h.action)}</div>`}).join('')}</div></div>`;
+        hHtml = `<div class="divider"></div><div class="row" style="padding:0;border:none;"><div style="width:100%"><div class="muted" style="color:#ff453a;font-weight:700;margin-bottom:10px">⚠️ 修改紀錄</div>${e.editHistory.map(h=>{const ed=members().find(m=>m.id===h.by)||{name:'未知',color:'#fff'};return `<div style="font-size:13px;color:#ccc;margin-top:10px;padding:14px;background:rgba(255,255,255,0.08);border-radius:14px;position:relative;z-index:3;box-shadow:inset 0 1px 2px rgba(0,0,0,0.2)">[${new Date(h.ts).toLocaleString()}] <span style="color:${ed.color};font-weight:700">${esc(ed.name)}</span> ${esc(h.action)}</div>`}).join('')}</div></div>`;
     }
     
     return `
-    <div class="acrylic-list-panel">
+    <div class="acrylic-card">
         <div class="row" style="align-items:flex-start;padding:28px 20px">
             <div style="width:60px;height:60px;border-radius:20px;background:${c[3]}33;display:grid;place-items:center;font-size:32px;box-shadow:inset 0 1px 3px rgba(255,255,255,0.2), 0 6px 16px rgba(0,0,0,0.3); border:1px solid ${c[3]}88">${c[2]}</div>
             <div style="flex:1;position:relative;z-index:3">
@@ -721,7 +703,7 @@ function viewExpense(e) {
         </div>
         <div class="listTop"><div class="muted">類別</div><span class="tag" style="font-size:14px">${c[2]} ${c[1]}</span></div>
         <div class="listTop"><div class="muted">類型</div><div style="font-weight:700;font-size:16px;position:relative;z-index:3">${e.type==='personal'?'個人消費':'共同分帳'}</div></div>
-        <div class="listTop"><div class="muted">付款人</div><div style="color:${p.color};font-weight:800;font-size:17px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${esc(p.name)}</div></div>
+        <div class="listTop"><div class="muted">付款人</div><div style="color:${p.color};font-weight:800;font-size:18px;position:relative;z-index:3;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${esc(p.name)}</div></div>
         <div class="listTop" style="flex-wrap:wrap"><div class="muted">分擔人</div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;position:relative;z-index:3">${sw.map(m=>`<span class="tag" style="color:${m.color};font-size:14px;">${esc(m.name)}</span>`).join('')}</div></div>
         ${e.note ? `<div class="divider"></div><div class="row" style="border:none;padding-top:0"><div><div class="muted" style="margin-bottom:8px">備註</div><div style="white-space:pre-wrap;font-size:17px;line-height:1.5;position:relative;z-index:3;font-weight:500">${esc(e.note)}</div></div></div>` : ''} 
         ${hHtml ? `<div style="padding:0 16px 20px">${hHtml}</div>` : ''}
@@ -734,7 +716,7 @@ function viewExpense(e) {
 }
 
 function settings() {
-    return `<div class="acrylic-list-panel"><div class="row"><div style="flex:1;position:relative;z-index:3"><div class="name">分享連結</div><div class="muted">傳送俾朋友</div></div><button class="b2" style="width:auto;padding:0 24px" onclick="copyLink()">複製</button></div></div><div style="margin-top:40px"><button class="b" style="background:linear-gradient(135deg,#ff453a,#bf2c24);box-shadow:0 10px 24px rgba(255,69,58,0.4);" onclick="resetAllData()">⚠️ 清除所有資料</button></div>`;
+    return `<div class="acrylic-card"><div class="row"><div style="flex:1;position:relative;z-index:3"><div class="name">分享連結</div><div class="muted">傳送俾朋友</div></div><button class="b2" style="width:auto;padding:0 24px" onclick="copyLink()">複製</button></div></div><div style="margin-top:40px"><button class="b" style="background:linear-gradient(135deg,#ff453a,#bf2c24);box-shadow:0 10px 24px rgba(255,69,58,0.4);" onclick="resetAllData()">⚠️ 清除所有資料</button></div>`;
 }
 
 async function compressImage(file, maxWidth=800) {
@@ -781,11 +763,10 @@ function bindSheet() {
                     inner += `<div class="row" style="padding:14px 16px"><div style="width:90px;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(x.name)}</div><input class="input split" data-mid="${x.id}" type="number" placeholder="0"></div>`;
                 }
             });
-            m.innerHTML = `<div class="acrylic-list-panel">${inner}</div>`;
+            m.innerHTML = `<div class="acrylic-card">${inner}</div>`;
         }
     });
     
-    // 🎨 類別多顏色邏輯
     document.querySelectorAll('.chiprow .chip').forEach(ch => ch.onclick = () => {
         document.querySelectorAll('.chiprow .chip').forEach(x => { x.classList.remove('on'); x.style.background=''; x.style.borderColor=''; x.style.color=''; x.style.boxShadow=''; });
         ch.classList.add('on');
@@ -798,7 +779,6 @@ function bindSheet() {
         }
     });
     
-    // 類型 / 分帳方式 (全轉 橙色)
     document.querySelectorAll('.seg .chip').forEach(ch => ch.onclick = () => {
         const parent = ch.parentElement;
         parent.querySelectorAll('.chip').forEach(x => { x.classList.remove('on'); x.style.background=''; x.style.borderColor=''; x.style.color=''; x.style.boxShadow=''; });
@@ -959,7 +939,7 @@ function bindGlobal() {
 
 function boot() {
     bindGlobal();
-    safeRender(); // 先出畫面，後行數據，保證秒開 0 死機
+    safeRender(); 
     loadRates().catch(e=>null).then(() => safeRender());
     setInterval(() => loadRates().catch(e=>null).then(() => safeRender()), 3600000);
 }
@@ -968,4 +948,3 @@ boot();
 </script>
 </body>
 </html>
-
