@@ -771,13 +771,6 @@ input[type="datetime-local"] {
 <div id="toast" class="toast"></div>
 
 <script>
-// ==========================================
-// ⚠️ 必需要改嘅地方！！！
-// 請將下面雙引號入面嘅字，換成你截圖嗰條完整嘅 API Key。
-// 如果唔換，或者換唔齊，AI 收據掃描就會彈「識別失敗」！
-// ==========================================
-const GEMINI_API_KEY = "請貼上你截圖嗰條完整嘅API_KEY"; 
-
 const APP = {tripId: 'travel-expense-pro'};
 // 教堂玻璃高彩度顏色
 const CATS = [
@@ -1227,7 +1220,7 @@ function render() {
             const d = e.dt ? (e.dt.length>10 ? e.dt.slice(0,10) : e.dt) : '未知'; 
             (gp[d] || (gp[d]=[])).push(e); 
         });
-        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button><button class="b2" onclick="openSheet('receipt')">AI 收據掃描</button></div></div>`;
+        h += `<div class="section" style="margin-top:8px"><h2>消費</h2><div class="topbtns"><button class="b2" onclick="openSheet('addExpense')">＋ 新增消費</button></div></div>`;
         h += `<div class="section"><h2>清單</h2>`;
         h += Object.keys(gp).sort((a,b)=>b.localeCompare(a)).map(d => `<div style="margin-bottom:24px"><div class="muted" style="margin:0 0 10px 14px;font-weight:700;font-size:14px;letter-spacing:0.02em;">${d}</div><div class="acrylic-list-panel">${gp[d].map(e=>expenseRow(e)).join('')}</div></div>`).join('') || '<div class="acrylic-list-panel"><div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費紀錄</div></div></div>';
         h += `</div>`;
@@ -1362,7 +1355,6 @@ function sheetTitle() {
         viewExpense:'消費詳情',
         addMember:'新增旅伴',
         settings:'設定',
-        receipt:'AI 收據掃描',
         delMemberPwd:'刪除旅伴',
         addTransfer:'記錄還款',
         groupExpenses:'團隊消費紀錄',
@@ -1373,7 +1365,7 @@ function sheetTitle() {
 function sheetBody() {
     const ex = expenses().find(x=>x.id===editId);
     let html = '';
-    if(['addMember','addExpense','editExpense','receipt','delMemberPwd','addTransfer'].indexOf(sheet) !== -1) {
+    if(['addMember','addExpense','editExpense','delMemberPwd','addTransfer'].indexOf(sheet) !== -1) {
         html = forms();
     } else if(sheet === 'viewExpense' && ex) {
         html = viewExpense(ex);
@@ -1548,21 +1540,6 @@ function forms() {
         <button class="b" onclick="saveExpense()">${sheet==='editExpense'?'儲存修改':'新增消費'}</button>`;
     }
     
-    if(sheet === 'receipt') { 
-        return `
-        <div class="rec">
-            <div>
-                <div class="emoji" style="font-size:32px;margin-bottom:12px">🧾</div>
-                <div style="font-weight:800;font-size:18px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.5);">Gemini AI 收據掃描</div>
-                <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px;">自動讀取金額與項目</div>
-            </div>
-        </div>
-        <input id="receiptFile" type="file" accept="image/*" class="input" style="margin-top:20px">
-        <img id="receiptPreview" style="display:none;width:100%;max-height:260px;margin-top:20px;border-radius:18px;object-fit:contain;border:0.5px solid rgba(255,255,255,0.2);">
-        <div style="height:32px"></div>
-        <button class="b2" onclick="uploadReceipt()">上傳並識別</button>`; 
-    }
-    
     return '';
 }
 
@@ -1732,20 +1709,6 @@ function bindSheet() {
                 document.querySelector('#avatarPreview').style.display = 'block'; 
             }
             if(document.querySelector('#av')) document.querySelector('#av').value = av;
-        }
-    }
-
-    if(document.querySelector('#receiptFile')) {
-        document.querySelector('#receiptFile').onchange = async e => {
-            const f = e.target.files[0]; 
-            if(!f) return;
-            toast('壓縮中...'); 
-            window.__receiptData = await compressImage(f,1000);
-            if(document.querySelector('#receiptPreview')) { 
-                document.querySelector('#receiptPreview').src = window.__receiptData; 
-                document.querySelector('#receiptPreview').style.display = 'block'; 
-            }
-            toast('✅ 相片已備妥');
         }
     }
 
@@ -1964,44 +1927,6 @@ function resetAllData() {
     safeRender();
 }
 
-async function uploadReceipt() {
-    if(!window.__receiptData) return toast('❌ 請先選擇相片');
-    toast('AI 努力睇緊張單...');
-    try {
-        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-            method:'POST', 
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({
-                contents:[{
-                    parts:[
-                        {text:`閱讀收據，回傳純 JSON: {"amount":數字,"currency":"JPY或HKD","location":"商店名","items":"消費項目簡短字串"}`},
-                        {inline_data:{mime_type:"image/jpeg",data:window.__receiptData.split(',')[1]}}
-                    ]
-                }]
-            })
-        });
-        
-        if(!r.ok) throw new Error();
-        const d = await r.json();
-        
-        let aiText = d.candidates[0].content.parts[0].text;
-        const magicStr = String.fromCharCode(96) + String.fromCharCode(96) + String.fromCharCode(96);
-        aiText = aiText.replace(new RegExp(magicStr + 'json', 'g'), '').replace(new RegExp(magicStr, 'g'), '').trim();
-        const aiR = JSON.parse(aiText);
-        
-        openSheet('addExpense');
-        setTimeout(() => {
-            if(aiR.items) $('#ename').value = aiR.items; 
-            if(aiR.amount) $('#eamt').value = aiR.amount;
-            if(aiR.location) $('#eloc').value = aiR.location; 
-            if(aiR.currency) $('#ecur').value = aiR.currency;
-            toast('✅ 識別成功！');
-        }, 150);
-    } catch(e) { 
-        toast('❌ 識別失敗，請檢查 API Key 同網絡'); 
-    }
-}
-
 function copyLink() { 
     navigator.clipboard.writeText(location.origin+location.pathname).then(() => toast('✅ 已複製連結')); 
 }
@@ -2023,7 +1948,6 @@ function bindGlobal() {
     window.deleteTransfer = deleteTransfer;
     window.resetAllData = resetAllData; 
     window.copyLink = copyLink; 
-    window.uploadReceipt = uploadReceipt;
 }
 
 function boot() {
@@ -2037,4 +1961,3 @@ boot();
 </script>
 </body>
 </html>
-
