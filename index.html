@@ -34,7 +34,7 @@ html, body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ⛪ 教堂玻璃紙 五彩底光 (推高至頂部，令頂部過渡更自然) */
+/* ⛪ 教堂玻璃紙 五彩底光 */
 .bg-acrylic {
     position: fixed; 
     inset: -10% 0 0 0; 
@@ -42,8 +42,8 @@ html, body {
     pointer-events: none;
     background-color: #050508;
     background-image: 
-        radial-gradient(circle at 10% 5%, rgba(255, 45, 85, 0.3) 0%, transparent 55%),   /* 螢光粉紅 */
-        radial-gradient(circle at 90% 15%, rgba(50, 173, 230, 0.3) 0%, transparent 55%),  /* 螢光藍 */
+        radial-gradient(circle at 10% 5%, rgba(255, 45, 85, 0.3) 0%, transparent 55%),   
+        radial-gradient(circle at 90% 15%, rgba(50, 173, 230, 0.3) 0%, transparent 55%),  
         radial-gradient(circle at 20% 85%, rgba(48, 209, 88, 0.2) 0%, transparent 55%),    
         radial-gradient(circle at 80% 90%, rgba(191, 90, 242, 0.28) 0%, transparent 55%),  
         radial-gradient(circle at 50% 50%, rgba(255, 159, 10, 0.15) 0%, transparent 65%);  
@@ -179,7 +179,6 @@ body.sheet-open #app-container {
     overflow: hidden;
 }
 
-/* 💎 透明螢光粉紅與螢光藍頂部卡片 */
 .acrylic-ruby { 
     background: rgba(255, 45, 85, 0.12); 
     border-color: rgba(255, 45, 85, 0.3); 
@@ -466,7 +465,7 @@ body.sheet-open .nav {
     z-index: 3; 
 }
 
-/* 表單高透玻璃框：改為高透明白底，取代黑底 */
+/* 表單高透玻璃框 */
 .input, .select, .textarea { 
     width: 100%; 
     background: rgba(255,255,255,0.04); 
@@ -544,7 +543,6 @@ input[type="datetime-local"] {
     opacity: 0.8; 
 }
 
-/* 共同分帳、平均分等全部切換為主要橙色 */
 .chip.on { 
     background: #ff9f0a; 
     color: #fff; 
@@ -773,7 +771,13 @@ input[type="datetime-local"] {
 <div id="toast" class="toast"></div>
 
 <script>
-const GEMINI_API_KEY = "AQ.Ab8RN6K1cv_ahSGKsyecjTNLElEzk-OI13aT5Gi36cv5zFUYSw"; 
+// ==========================================
+// ⚠️ 必需要改嘅地方！！！
+// 請將下面雙引號入面嘅字，換成你截圖嗰條完整嘅 API Key。
+// 如果唔換，或者換唔齊，AI 收據掃描就會彈「識別失敗」！
+// ==========================================
+const GEMINI_API_KEY = "請貼上你截圖嗰條完整嘅API_KEY"; 
+
 const APP = {tripId: 'travel-expense-pro'};
 // 教堂玻璃高彩度顏色
 const CATS = [
@@ -823,21 +827,16 @@ function initials(n) {
     return (n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'?'; 
 }
 
-// 增強版頭像顯示，支援圖片同 Emoji
 function renderAvatar(m) {
     if (!m.avatar) return initials(m.name);
     if (m.avatar.startsWith('data:image') || m.avatar.startsWith('http')) {
         return `<img src="${m.avatar}">`;
     }
-    // 如果係 Emoji 或短文字
     const trimmed = m.avatar.trim();
-    if (trimmed.length <= 8) {
-        return trimmed;
-    }
+    if (trimmed.length <= 8) return trimmed;
     return initials(m.name);
 }
 
-// 加入圖片壓縮功能，解決相片無法儲存及 AI 無法掃描問題
 function compressImage(file, maxSize) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -1969,12 +1968,9 @@ async function uploadReceipt() {
     if(!window.__receiptData) return toast('❌ 請先選擇相片');
     toast('AI 努力睇緊張單...');
     try {
-        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method:'POST', 
-            headers:{
-                'Content-Type':'application/json',
-                'x-goog-api-key': GEMINI_API_KEY
-            },
+            headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
                 contents:[{
                     parts:[
@@ -2041,3 +2037,4 @@ boot();
 </script>
 </body>
 </html>
+
