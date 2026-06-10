@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#050508">
 <title>日本GOGOGO</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-database-compat.js"></script>
+
 <style>
 /* 核心排版：徹底防跳動、防藍色選取框、防預設點擊反光 */
 * {
@@ -112,8 +116,8 @@ body.sheet-open #app-container {
     gap: 6px;
     font-size: 11px;
     color: #fff;
-    background: rgba(255,255,255,0.15);
-    border: 0.5px solid rgba(255,255,255,0.3);
+    background: rgba(48,209,88,0.2);
+    border: 0.5px solid #30d158;
     padding: 4px 10px;
     border-radius: 999px;
     font-weight: 700;
@@ -771,8 +775,26 @@ input[type="datetime-local"] {
 <div id="toast" class="toast"></div>
 
 <script>
+// ==========================================
+// 🚀 FIREBASE 初始化區塊
+// ==========================================
+const firebaseConfig = {
+    apiKey: "AIzaSyDhXnm_QQGiJKQTcV9z-n2KakPq_-IbwOI",
+    authDomain: "japan-gogogo.firebaseapp.com",
+    databaseURL: "https://japan-gogogo-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "japan-gogogo",
+    storageBucket: "japan-gogogo.firebasestorage.app",
+    messagingSenderId: "31131784798",
+    appId: "1:31131784798:web:067ad776e4e67d4a6ec6cf",
+    measurementId: "G-TKSDF89JLF"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 const APP = {tripId: 'travel-expense-pro'};
-// 教堂玻璃高彩度顏色
+const tripRef = db.ref('trips/' + APP.tripId);
+// ==========================================
+
 const CATS = [
     ['food', '餐飲', '🍜', '#ff9f0a'],
     ['transport', '交通', '🚄', '#0a84ff'],
@@ -786,22 +808,27 @@ const CATS = [
 const CURS = ['JPY', 'HKD', 'USD', 'CNY', 'KRW', 'TWD', 'SGD', 'EUR'];
 const $ = s => document.querySelector(s);
 const esc = s => (s||'').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-const key = 'tt_' + APP.tripId;
+const localKey = 'tt_' + APP.tripId + '_me';
 
-function loadState() {
-    try { 
-        let s = JSON.parse(localStorage.getItem(key)); 
-        return s ? {members:[], expenses:[], snapshots:[], transfers:[], me:'', ...s} : {members:[], expenses:[], snapshots:[], transfers:[], me:''}; 
-    } catch(e) { 
-        return {members:[], expenses:[], snapshots:[], transfers:[], me:''}; 
-    }
-}
+let state = {
+    members: [], 
+    expenses: [], 
+    snapshots: [], 
+    transfers: [], 
+    me: localStorage.getItem(localKey) || ''
+};
+let tab = 'home', sheet = '', editId = null, rates = null, rateTs = 0;
 
 function saveState(s) { 
-    localStorage.setItem(key, JSON.stringify(s)); 
+    localStorage.setItem(localKey, s.me || '');
+    const syncData = {
+        members: s.members || [],
+        expenses: s.expenses || [],
+        transfers: s.transfers || [],
+        snapshots: s.snapshots || []
+    };
+    tripRef.set(syncData); 
 }
-
-let state = loadState(), tab = 'home', sheet = '', editId = null, rates = null, rateTs = 0;
 
 function toast(t) { 
     const e = $('#toast'); 
@@ -1158,7 +1185,7 @@ function render() {
     const ct = CATS.map(c => ({id:c[0], label:c[1], icon:c[2], color:c[3], amt:cM[c[0]]||0})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
     const cTot = ct.reduce((s,c) => s + c.amt, 0);
 
-    let rateBadge = rates ? `<span class="status">● 匯率已連線</span>` : ``;
+    let rateBadge = `<span class="status">● 已連線</span>`;
 
     let h = `
     <div class="top">
@@ -1634,7 +1661,7 @@ function settings() {
         </div>
     </div>
     <div style="margin-top:40px">
-        <button class="b" style="background:#ff453a;" onclick="resetAllData()">⚠️ 清除所有資料</button>
+        <button class="b" style="background:#ff453a;" onclick="resetAllData()">⚠️ 清除所有 Firebase 資料</button>
     </div>`; 
 }
 
@@ -1763,7 +1790,6 @@ function saveMember() {
     else toast('✅ 已新增');
     
     closeSheet(); 
-    safeRender();
 }
 
 function delMember(id) { 
@@ -1782,7 +1808,6 @@ function confirmDelMember() {
     saveState(state);
     toast('✅ 已刪除'); 
     closeSheet(); 
-    safeRender();
 }
 
 function saveExpense() {
@@ -1852,7 +1877,6 @@ function saveExpense() {
     saveState(state); 
     toast('✅ 已儲存紀錄'); 
     closeSheet(); 
-    safeRender();
 }
 
 function startEditExpense(id) { 
@@ -1872,7 +1896,6 @@ function delExpense(id) {
     saveState(state); 
     toast('🗑️ 已刪除'); 
     closeSheet(); 
-    safeRender();
 }
 
 function saveTransfer() {
@@ -1896,7 +1919,6 @@ function saveTransfer() {
     saveState(state); 
     toast('✅ 已記錄還款'); 
     closeSheet(); 
-    safeRender();
 }
 
 function deleteTransfer(id) {
@@ -1913,18 +1935,18 @@ function deleteTransfer(id) {
     state.transfers = newTransfers;
     saveState(state); 
     toast('🗑️ 已刪除'); 
-    safeRender();
 }
 
 function resetAllData() {
     if(prompt('請輸入 Admin 密碼：') !== 'chiu') return toast('❌ 密碼錯誤');
     if(!confirm('⚠️ 確定清除所有資料？')) return;
     
-    localStorage.removeItem(key); 
+    localStorage.removeItem(localKey); 
+    tripRef.remove(); 
+    
     state = {members:[], expenses:[], snapshots:[], transfers:[], me:''};
-    toast('✅ 已清除'); 
+    toast('✅ 已徹底清除'); 
     closeSheet(); 
-    safeRender();
 }
 
 function copyLink() { 
@@ -1952,7 +1974,23 @@ function bindGlobal() {
 
 function boot() {
     bindGlobal();
-    safeRender(); 
+
+    tripRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            state.members = data.members || [];
+            state.expenses = data.expenses || [];
+            state.transfers = data.transfers || [];
+            state.snapshots = data.snapshots || [];
+        } else {
+            state.members = [];
+            state.expenses = [];
+            state.transfers = [];
+            state.snapshots = [];
+        }
+        safeRender(); 
+    });
+
     loadRates().catch(e=>null).then(() => safeRender());
     setInterval(() => loadRates().catch(e=>null).then(() => safeRender()), 3600000);
 }
