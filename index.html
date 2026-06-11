@@ -1040,17 +1040,19 @@ function transferRow(t, isBtn=false) {
     let col = '#fff';
     if(isO) { col = '#30d158'; } else if(iO) { col = '#ff453a'; }
     return `
-    <div class="acrylic-card" style="margin-bottom:14px;padding:16px;background:transparent;display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;position:relative;z-index:3">
-            <div class="avatar" style="width:40px;height:40px;border-color:${f.color||'rgba(255,255,255,0.3)'};font-size:14px">${fAv}</div>
-            <div style="font-size:16px;font-weight:700;color:${f.color||'#fff'};white-space:nowrap">${iO ? '你' : esc(f.name)}</div>
-            <div style="color:rgba(255,255,255,0.4);font-size:12px;font-weight:800;">➔</div>
-            <div class="avatar" style="width:40px;height:40px;border-color:${to.color||'rgba(255,255,255,0.3)'};font-size:14px">${tAv}</div>
-            <div style="font-size:16px;font-weight:700;color:${to.color||'#fff'};white-space:nowrap">${isO ? '你' : esc(to.name)}</div>
+    <div class="acrylic-card" style="margin-bottom:14px;padding:14px 16px;background:transparent;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;position:relative;z-index:3">
+            <div class="avatar" style="width:34px;height:34px;flex-shrink:0;border-color:${f.color||'rgba(255,255,255,0.3)'};font-size:14px">${fAv}</div>
+            <div style="font-size:15px;font-weight:700;color:${f.color||'#fff'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:35%;">${iO ? '你' : esc(f.name)}</div>
+            
+            <div style="color:rgba(255,255,255,0.4);font-size:11px;font-weight:800;flex-shrink:0;">➔</div>
+            
+            <div class="avatar" style="width:34px;height:34px;flex-shrink:0;border-color:${to.color||'rgba(255,255,255,0.3)'};font-size:14px">${tAv}</div>
+            <div style="font-size:15px;font-weight:700;color:${to.color||'#fff'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">${isO ? '你' : esc(to.name)}</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:relative;z-index:3">
-            <div class="amt" style="font-size:19px;color:${col};text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(t.amt)}</div>
-            ${isBtn ? `<button class="b" style="width:auto;padding:6px 20px;min-height:0;border-radius:14px;font-size:13px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;position:relative;z-index:3;flex-shrink:0;">
+            <div class="amt" style="font-size:18px;color:${col};text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(t.amt)}</div>
+            ${isBtn ? `<button class="b" style="width:auto;padding:6px 16px;min-height:0;border-radius:12px;font-size:12px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
         </div>
     </div>`;
 }
@@ -1221,7 +1223,7 @@ function render() {
             let label = '正常發揮 🤌';
             if(i === 0) label = '發咗達💵';
             else if(i === sBd.length - 1 && sBd.length > 1) label = '識計數🧮';
-            return `<div class="row"><div style="width:32px;color:${rC};font-weight:800;font-size:${i<3?'22px':'17px'};text-shadow:0 2px 6px rgba(0,0,0,0.3);">${rI}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name">${esc(m.name)}</div><div class="muted">${label}</div></div><div class="amt">${moneyText(m.spent)}</div></div>`; 
+            return `<div class="row"><div style="width:32px;color:${rC};font-weight:800;font-size:${i<3?'22px':'17px'};text-shadow:0 2px 6px rgba(0,0,0,0.3);">${rI}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}</div><div class="muted">${label}</div></div><div class="amt">${moneyText(m.spent)}</div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費</div></div>';
         h += `</div></div>`;
         
@@ -1231,7 +1233,7 @@ function render() {
             let c = m.total>1 ? '#30d158' : m.total<-1 ? '#ff453a' : '#8e8e93'; 
             let s = m.total>1 ? '+' : ''; 
             let mAv = renderAvatar(m); 
-            return `<div class="row"><div style="width:32px;color:#8e8e93;font-weight:800;font-size:17px;">${i+1}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name">${esc(m.name)}</div><div class="muted">${sT}</div></div><div class="amt" style="color:${c}">${s}${moneyText(m.total)}</div></div>`; 
+            return `<div class="row"><div style="width:32px;color:#8e8e93;font-weight:800;font-size:17px;">${i+1}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}</div><div class="muted">${sT}</div></div><div class="amt" style="color:${c}">${s}${moneyText(m.total)}</div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>';
         h += `</div></div>`;
         
@@ -1257,7 +1259,7 @@ function render() {
         h += `<div class="section"><div class="acrylic-list-panel">`;
         h += members().length ? members().map(m => { 
             const mAv = renderAvatar(m); 
-            return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;position:relative;z-index:3"><div class="name">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;position:relative;z-index:3"><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;color:#ff453a;border-color:rgba(255,69,58,0.4)" onclick="delMember('${m.id}')">刪除</button></div></div>`; 
+            return `<div class="row"><div class="avatar">${mAv}</div><div style="flex:1;position:relative;z-index:3;min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)} ${state.me===m.id?'<span class="pill">你</span>':''}</div><div class="muted">${state.me===m.id?'目前身份':'可切換身份'}</div></div><div style="display:flex;gap:10px;position:relative;z-index:3;flex-shrink:0"><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;" onclick="switchMe('${m.id}')">切換</button><button class="b2" style="padding:0 18px;min-height:46px;font-size:15px;color:#ff453a;border-color:rgba(255,69,58,0.4)" onclick="delMember('${m.id}')">刪除</button></div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>';
         h += `</div></div>`;
     } 
@@ -1271,7 +1273,7 @@ function render() {
                 const f = members().find(m=>m.id===t.from) || {name:'?'}; 
                 const to = members().find(m=>m.id===t.to) || {name:'?'}; 
                 const dtD = t.dt ? (t.dt.length>16 ? t.dt.replace('T',' ').slice(0,16) : t.dt) : '未知'; 
-                return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;border:1px solid rgba(48,209,88,0.4)">💸</div><div><div class="name">${esc(f.name)} 還給 ${esc(to.name)}</div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; 
+                return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;border:1px solid rgba(48,209,88,0.4)">💸</div><div style="min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.name)} 還給 ${esc(to.name)}</div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; 
             }).join(''); 
         } else { 
             h += `<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有還款記錄</div></div>`; 
@@ -1478,10 +1480,13 @@ function forms() {
     
     if(sheet === 'addExpense' || sheet === 'editExpense') {
         const e = sheet === 'editExpense' ? expenses().find(x=>x.id===editId) : null;
-        const sw = e && e.sharedWith && e.sharedWith.length ? e.sharedWith : members().map(m=>m.id);
         
+        // 【修正 1】一開始預設無人分擔 (吉嘅 Array)
+        const sw = e && e.sharedWith ? e.sharedWith : []; 
+        
+        // 【修正 2】付款人預設選取當前身份 (state.me)
         const payerOptions = members().length > 0 
-            ? members().map(m=>`<option value="${m.id}" ${(e?e.paidBy:m.id)===m.id?'selected':''}>${esc(m.name)}</option>`).join('') 
+            ? members().map(m=>`<option value="${m.id}" ${(e?e.paidBy:state.me)===m.id?'selected':''}>${esc(m.name)}</option>`).join('') 
             : `<option disabled selected>請先新增旅伴</option>`;
             
         const sharedWithCheckboxes = members().length > 0 
@@ -1500,6 +1505,8 @@ function forms() {
             const style = isOn ? `style="background:${c[3]};color:#fff;border-color:${c[3]};box-shadow:0 4px 16px ${c[3]}66"` : ''; 
             return `<button class="chip ${isOn?'on':''}" data-cat="${c[0]}" data-color="${c[3]}" ${style}>${c[2]} ${c[1]}</button>`; 
         }).join('');
+        
+        const typeState = e ? e.type : 'shared';
         
         return `
         <div class="k">消費名稱</div>
@@ -1523,8 +1530,8 @@ function forms() {
         
         <div class="k" style="margin-top:16px">類型</div>
         <div class="seg">
-            <button class="chip ${(e?e.type:'shared')==='shared'?'on':''}" data-type="shared" ${(e?e.type:'shared')==='shared'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>共同分帳</button>
-            <button class="chip ${(e?e.type:'shared')==='personal'?'on':''}" data-type="personal" ${(e?e.type:'shared')==='personal'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>個人消費</button>
+            <button class="chip ${typeState==='shared'?'on':''}" data-type="shared" ${typeState==='shared'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>共同分帳</button>
+            <button class="chip ${typeState==='personal'?'on':''}" data-type="personal" ${typeState==='personal'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>個人消費</button>
         </div>
         
         <div class="k" style="margin-top:20px">付款人</div>
@@ -1533,24 +1540,26 @@ function forms() {
             ${payerOptions}
         </select>
         
-        <div class="k" style="margin-top:20px">分擔人</div>
-        <div class="acrylic-list-panel" style="padding:4px;">
-            ${sharedWithCheckboxes}
-        </div>
-        
-        <div class="k" style="margin-top:20px">分帳方式</div>
-        <div class="seg">
-            <button class="chip ${(e?e.splitMode:'equal')==='equal'?'on':''}" data-split="equal" ${(e?e.splitMode:'equal')==='equal'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>平均分</button>
-            <button class="chip ${(e?e.splitMode:'equal')==='manual'?'on':''}" data-split="manual" ${(e?e.splitMode:'equal')==='manual'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>手動輸入</button>
-        </div>
-        
-        <div id="manualArea" style="margin-top:16px;display:${(e?e.splitMode:'equal')==='manual'?'block':'none'}">
-            <div class="acrylic-list-panel">
-                ${members().filter(m=>sw.indexOf(m.id)!==-1).map(m=>`
-                    <div class="row" style="padding:14px 16px">
-                        <div style="width:90px;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div>
-                        <input class="input split" data-mid="${m.id}" type="number" placeholder="0" value="${e&&e.splits&&e.splits[m.id]?e.splits[m.id]:''}">
-                    </div>`).join('')}
+        <div id="shareOptionsArea" style="display:${typeState==='shared'?'block':'none'}">
+            <div class="k" style="margin-top:20px">分擔人 <span style="font-weight:400;opacity:0.6">(請自己剔邊個要夾錢)</span></div>
+            <div class="acrylic-list-panel" style="padding:4px;">
+                ${sharedWithCheckboxes}
+            </div>
+            
+            <div class="k" style="margin-top:20px">分帳方式</div>
+            <div class="seg">
+                <button class="chip ${(e?e.splitMode:'equal')==='equal'?'on':''}" data-split="equal" ${(e?e.splitMode:'equal')==='equal'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>平均分</button>
+                <button class="chip ${(e?e.splitMode:'equal')==='manual'?'on':''}" data-split="manual" ${(e?e.splitMode:'equal')==='manual'?'style="background:#ff9f0a;border-color:#ff9f0a;color:#fff;box-shadow:0 4px 16px rgba(255,159,10,0.4)"':''}>手動輸入</button>
+            </div>
+            
+            <div id="manualArea" style="margin-top:16px;display:${(e?e.splitMode:'equal')==='manual'?'block':'none'}">
+                <div class="acrylic-list-panel" id="manualList">
+                    ${members().filter(m=>sw.indexOf(m.id)!==-1).map(m=>`
+                        <div class="row" style="padding:14px 16px">
+                            <div style="width:90px;color:#fff;font-weight:700;font-size:16px;position:relative;z-index:3">${esc(m.name)}</div>
+                            <input class="input split" data-mid="${m.id}" type="number" placeholder="0" value="${e&&e.splits&&e.splits[m.id]?e.splits[m.id]:''}">
+                        </div>`).join('')}
+                </div>
             </div>
         </div>
         
@@ -1580,7 +1589,7 @@ function viewExpense(e) {
             const m = members().find(x=>x.id===id); 
             if(m) sw.push(m); 
         }); 
-    } else { 
+    } else if (e.type === 'shared') { 
         members().forEach(m => sw.push(m)); 
     }
     
@@ -1600,6 +1609,17 @@ function viewExpense(e) {
                 }).join('')}
             </div>
         </div>`; 
+    }
+
+    let shareHTML = '';
+    if(e.type === 'shared') {
+        shareHTML = `
+        <div class="listTop" style="flex-wrap:wrap">
+            <div class="muted">分擔人</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+                ${sw.map(m=>`<span class="tag" style="color:${m.color};font-size:14px;">${esc(m.name)}</span>`).join('')}
+            </div>
+        </div>`;
     }
     
     return `
@@ -1626,12 +1646,7 @@ function viewExpense(e) {
             <div class="muted">付款人</div>
             <div style="color:${p.color};font-weight:800;font-size:18px;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${esc(p.name)}</div>
         </div>
-        <div class="listTop" style="flex-wrap:wrap">
-            <div class="muted">分擔人</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
-                ${sw.map(m=>`<span class="tag" style="color:${m.color};font-size:14px;">${esc(m.name)}</span>`).join('')}
-            </div>
-        </div>
+        ${shareHTML}
         ${e.note ? `
         <div class="divider"></div>
         <div class="row" style="border:none;padding-top:0">
@@ -1698,11 +1713,20 @@ function bindSheet() {
                 x.style.background = ''; 
                 x.style.borderColor = ''; 
                 x.style.boxShadow = ''; 
+                x.style.color = '';
             });
             el.classList.add('on'); 
             el.style.background = '#ff9f0a'; 
             el.style.borderColor = '#ff9f0a'; 
             el.style.boxShadow = '0 4px 16px rgba(255,159,10,0.4)';
+            el.style.color = '#fff';
+
+            // 切換個人與共用選項介面
+            const type = el.getAttribute('data-type');
+            const shareArea = document.getElementById('shareOptionsArea');
+            if (shareArea) {
+                shareArea.style.display = type === 'shared' ? 'block' : 'none';
+            }
         }
     });
 
@@ -1713,11 +1737,14 @@ function bindSheet() {
                 x.style.background = ''; 
                 x.style.borderColor = ''; 
                 x.style.boxShadow = ''; 
+                x.style.color = '';
             });
             el.classList.add('on'); 
             el.style.background = '#ff9f0a'; 
             el.style.borderColor = '#ff9f0a'; 
             el.style.boxShadow = '0 4px 16px rgba(255,159,10,0.4)';
+            el.style.color = '#fff';
+            
             const mode = el.getAttribute('data-split'); 
             if(document.querySelector('#manualArea')) {
                 document.querySelector('#manualArea').style.display = mode === 'manual' ? 'block' : 'none';
@@ -1745,8 +1772,8 @@ function bindSheet() {
             document.querySelectorAll('[data-share]').forEach(x => { 
                 if(x.checked) arr.push(x.getAttribute('data-share')); 
             });
-            const m = document.getElementById('manualArea');
-            if(m) {
+            const mList = document.getElementById('manualList');
+            if(mList) {
                 let inner = '';
                 members().forEach(x => {
                     if(arr.indexOf(x.id) !== -1) {
@@ -1757,7 +1784,7 @@ function bindSheet() {
                         </div>`;
                     }
                 });
-                m.innerHTML = `<div class="acrylic-list-panel">${inner}</div>`;
+                mList.innerHTML = inner;
             }
         }
     });
@@ -1830,6 +1857,11 @@ function saveExpense() {
     document.querySelectorAll('[data-share]').forEach(x => { 
         if(x.checked) sharedWith.push(x.getAttribute('data-share')); 
     });
+
+    // 驗證是否有人夾錢
+    if(type === 'shared' && sharedWith.length === 0) {
+        return toast('❌ 請至少選擇一位分擔人');
+    }
     
     const splitMode = dS ? dS.getAttribute('data-split') : 'equal';
     const splits = {};
@@ -1837,7 +1869,7 @@ function saveExpense() {
         splits[i.getAttribute('data-mid')] = +i.value||0; 
     });
     
-    if(splitMode === 'manual') {
+    if(splitMode === 'manual' && type === 'shared') {
         let s = 0;
         Object.keys(splits).forEach(k => { s += (+splits[k]||0); });
         if(Math.abs(s - amount) > 1) return toast('❌ 手動分帳總和不符');
