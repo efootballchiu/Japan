@@ -1039,9 +1039,10 @@ function transferRow(t, isBtn=false) {
     const tAv = renderAvatar(to);
     let col = '#fff';
     if(isO) { col = '#30d158'; } else if(iO) { col = '#ff453a'; }
+    
     return `
-    <div class="acrylic-card" style="margin-bottom:14px;padding:14px 16px;background:transparent;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;position:relative;z-index:3">
+    <div class="acrylic-card clickable-card" style="margin-bottom:14px;padding:14px 16px;background:transparent;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div onclick="openSheet('debtDetail', '${t.from}|${t.to}')" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;position:relative;z-index:3;height:100%;">
             <div class="avatar" style="width:34px;height:34px;flex-shrink:0;border-color:${f.color||'rgba(255,255,255,0.3)'};font-size:14px">${fAv}</div>
             <div style="font-size:15px;font-weight:700;color:${f.color||'#fff'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:35%;">${iO ? '你' : esc(f.name)}</div>
             
@@ -1051,8 +1052,8 @@ function transferRow(t, isBtn=false) {
             <div style="font-size:15px;font-weight:700;color:${to.color||'#fff'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">${isO ? '你' : esc(to.name)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;position:relative;z-index:3;flex-shrink:0;">
-            <div class="amt" style="font-size:18px;color:${col};text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(t.amt)}</div>
-            ${isBtn ? `<button class="b" style="width:auto;padding:6px 16px;min-height:0;border-radius:12px;font-size:12px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt})">還款</button>` : ''}
+            <div class="amt" onclick="openSheet('debtDetail', '${t.from}|${t.to}')" style="font-size:18px;color:${col};text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(t.amt)}</div>
+            ${isBtn ? `<button class="b" style="width:auto;padding:6px 16px;min-height:0;border-radius:12px;font-size:12px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt}); event.stopPropagation();">還款</button>` : ''}
         </div>
     </div>`;
 }
@@ -1141,6 +1142,101 @@ function renderCompactExpenseList(listType) {
     return html;
 }
 
+function renderDebtDetail(ids) {
+    const [dbId, crId] = ids.split('|');
+    const dbM = members().find(m=>m.id===dbId) || {name:'未知'};
+    const crM = members().find(m=>m.id===crId) || {name:'未知'};
+    let logs = [];
+
+    activeExpenses().forEach(e => {
+        if(e.type === 'personal' || e.paidBy === 'all') return;
+        const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0;
+        const sw = (e.sharedWith && e.sharedWith.length) ? e.sharedWith : members().map(m=>m.id);
+
+        if (e.paidBy === crId && sw.includes(dbId)) {
+            let dbShare = 0;
+            if(e.splitMode === 'manual' && e.splits) {
+                let sT = 0; Object.values(e.splits).forEach(v => sT += (+v||0));
+                const fR = (e.amount>0 && sT>0) ? (a/sT) : 1;
+                if(e.splits[dbId]) dbShare = e.splits[dbId] * fR;
+            } else {
+                dbShare = a / sw.length;
+            }
+            if(dbShare > 0) logs.push({dt: e.dt, type: 'expense', name: e.name, amt: dbShare, sign: '+'});
+        }
+        else if (e.paidBy === dbId && sw.includes(crId)) {
+            let crShare = 0;
+            if(e.splitMode === 'manual' && e.splits) {
+                let sT = 0; Object.values(e.splits).forEach(v => sT += (+v||0));
+                const fR = (e.amount>0 && sT>0) ? (a/sT) : 1;
+                if(e.splits[crId]) crShare = e.splits[crId] * fR;
+            } else {
+                crShare = a / sw.length;
+            }
+            if(crShare > 0) logs.push({dt: e.dt, type: 'expense', name: e.name, amt: crShare, sign: '-'});
+        }
+    });
+
+    transfers().forEach(t => {
+        const tA = (+t.jpy||0);
+        if (t.from === dbId && t.to === crId) logs.push({dt: t.dt, type: 'transfer', name: '已還款', amt: tA, sign: '-'});
+        if (t.from === crId && t.to === dbId) logs.push({dt: t.dt, type: 'transfer', name: '已還款', amt: tA, sign: '+'});
+    });
+
+    logs.sort((a,b) => b.dt.localeCompare(a.dt));
+
+    let totalOwe = 0;
+    let h = `<div class="k" style="margin-bottom:16px;">${esc(dbM.name)} 欠 ${esc(crM.name)} 嘅明細：</div><div class="acrylic-list-panel">`;
+    if(logs.length === 0) h += `<div class="row"><div class="muted">無相關紀錄</div></div>`;
+    
+    logs.forEach(l => {
+        totalOwe += (l.sign === '+' ? l.amt : -l.amt);
+        let col = l.sign === '+' ? '#ff453a' : '#30d158'; 
+        let icon = l.type === 'transfer' ? '💸' : '🧾';
+        let dt = l.dt ? l.dt.slice(5,10).replace('-','/') : '';
+        h += `<div class="listTop"><div style="display:flex;gap:12px;align-items:center"><div style="font-size:20px">${icon}</div><div><div style="font-weight:700;font-size:15px;color:#fff">${esc(l.name)}</div><div class="muted" style="font-size:11px">${dt}</div></div></div><div class="amt" style="color:${col};font-size:16px">${l.sign}${moneyText(l.amt)}</div></div>`;
+    });
+    h += `</div>`;
+    h += `<div style="margin-top:24px;text-align:right;font-size:18px;font-weight:800;color:#fff;">總共欠款: <span style="color:#ff453a;font-size:24px;">${moneyText(totalOwe>0?totalOwe:0)}</span></div>`;
+    return h;
+}
+
+function renderMyCatDetail(catId) {
+    const cInfo = findCat(catId);
+    const myI = state.me;
+    let logs = [];
+
+    activeExpenses().forEach(e => {
+        if (e.cat !== catId) return;
+        const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0;
+        let myShare = 0;
+        if (e.type === 'personal') {
+            if (e.paidBy === myI) myShare = a;
+        } else if (e.paidBy !== 'all') {
+            const sw = (e.sharedWith && e.sharedWith.length) ? e.sharedWith : members().map(m=>m.id);
+            if(e.splitMode === 'manual' && e.splits) {
+                let sT = 0; Object.values(e.splits).forEach(v => sT += (+v||0));
+                const fR = (e.amount>0 && sT>0) ? (a/sT) : 1;
+                if (e.splits[myI]) myShare = e.splits[myI] * fR;
+            } else {
+                if (sw.includes(myI)) myShare = a / sw.length;
+            }
+        }
+        if (myShare > 0) logs.push({e: e, share: myShare});
+    });
+
+    logs.sort((a,b) => b.e.dt.localeCompare(a.e.dt));
+
+    let h = `<div class="k" style="margin-bottom:16px;">${cInfo[2]} ${cInfo[1]} - 你的開支明細：</div><div class="acrylic-list-panel">`;
+    if(logs.length === 0) h += `<div class="row"><div class="muted">無相關紀錄</div></div>`;
+    logs.forEach(l => {
+        let dt = l.e.dt ? l.e.dt.slice(5,10).replace('-','/') : '';
+        h += `<div class="listTop" onclick="openExpense('${l.e.id}')"><div style="display:flex;gap:12px;align-items:center"><div style="font-weight:700;font-size:15px;color:#fff">${esc(l.e.name)}</div><div class="muted" style="font-size:11px">${dt}</div></div><div class="amt" style="font-size:16px">${moneyText(l.share)}</div></div>`;
+    });
+    h += `</div>`;
+    return h;
+}
+
 function render() {
     const ex = activeExpenses();
     const aB = calcBalances();
@@ -1182,10 +1278,33 @@ function render() {
     const bd = members().map(m => ({...m, total:(aB[m.id]||0)})).sort((a,b) => b.total - a.total);
     const sBd = members().map(m => ({...m, spent:cs[m.id]||0})).sort((a,b) => b.spent - a.spent);
     
+    // 計算團隊總分類
     const cM = Object.fromEntries(CATS.map(c=>[c[0],0])); 
     ex.forEach(e => cM[e.cat] = (cM[e.cat]||0) + ((+e.jpy)||toJpy(e.amount,e.currency)));
     const ct = CATS.map(c => ({id:c[0], label:c[1], icon:c[2], color:c[3], amt:cM[c[0]]||0})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
     const cTot = ct.reduce((s,c) => s + c.amt, 0);
+
+    // 計算個人分類
+    const myCatM = Object.fromEntries(CATS.map(c=>[c[0],0]));
+    ex.forEach(e => {
+        const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0;
+        let myShare = 0;
+        if (e.type === 'personal') {
+            if (e.paidBy === myI) myShare = a;
+        } else if (e.paidBy !== 'all') {
+            const sw = (e.sharedWith && e.sharedWith.length) ? e.sharedWith : members().map(m=>m.id);
+            if(e.splitMode === 'manual' && e.splits) {
+                let sT = 0; Object.values(e.splits).forEach(v => sT += (+v||0));
+                const fR = (e.amount>0 && sT>0) ? (a/sT) : 1;
+                if (e.splits[myI]) myShare = e.splits[myI] * fR;
+            } else {
+                if (sw.includes(myI)) myShare = a / sw.length;
+            }
+        }
+        if (myShare > 0) myCatM[e.cat] += myShare;
+    });
+    const myCt = CATS.map(c => ({id:c[0], label:c[1], icon:c[2], color:c[3], amt:myCatM[c[0]]||0})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
+    const myCTot = myCt.reduce((s,c) => s + c.amt, 0);
 
     let rateBadge = `<span class="status">● 已連線</span>`;
 
@@ -1211,7 +1330,7 @@ function render() {
     <div class="content">`;
 
     if(tab === 'home') {
-        h += `<div class="section"><h2>一對一欠款明細</h2>`;
+        h += `<div class="section"><h2>一對一欠款明細 (撳入睇詳情)</h2>`;
         h += aT.length ? aT.map(t=>transferRow(t,false)).join('') : '<div class="acrylic-card"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清，無人爭人錢！</div></div></div>';
         h += `</div>`;
         
@@ -1237,9 +1356,15 @@ function render() {
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>';
         h += `</div></div>`;
         
+        if(myCt.length) {
+            h += `<div class="section"><h2>👤 我的開支分類 (撳入睇明細)</h2><div class="acrylic-list-panel">`;
+            h += myCt.map(c => `<div class="row" onclick="openSheet('myCatDetail', '${c.id}')"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;position:relative;z-index:3"><div style="font-weight:700;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,0.4);">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar" style="position:relative;z-index:3"><div style="width:${myCTot?c.amt/myCTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('');
+            h += `</div></div>`;
+        }
+
         if(ct.length) {
-            h += `<div class="section"><h2>開支分類</h2><div class="acrylic-list-panel">`;
-            h += ct.map(c => `<div class="row"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:12px;position:relative;z-index:3"><div style="font-weight:700;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,0.4);">${c.icon} ${c.label}</div><div class="amt">${moneyText(c.amt)}</div></div><div class="bar" style="position:relative;z-index:3"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('');
+            h += `<div class="section" style="opacity:0.7"><h2>🌍 團隊開支分類 (參考用)</h2><div class="acrylic-list-panel">`;
+            h += ct.map(c => `<div class="row" style="padding:14px 16px"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:8px;position:relative;z-index:3"><div style="font-weight:700;font-size:13px;">${c.icon} ${c.label}</div><div class="amt" style="font-size:16px">${moneyText(c.amt)}</div></div><div class="bar" style="height:4px;position:relative;z-index:3"><div style="width:${cTot?c.amt/cTot*100:0}%;background:${c.color}"></div></div></div></div>`).join('');
             h += `</div></div>`;
         }
     } 
@@ -1272,7 +1397,7 @@ function render() {
             h += transfers().map(t => { 
                 const f = members().find(m=>m.id===t.from) || {name:'?'}; 
                 const to = members().find(m=>m.id===t.to) || {name:'?'}; 
-                const dtD = t.dt ? (t.dt.length>16 ? t.dt.replace('T',' ').slice(0,16) : t.dt) : '未知'; 
+                const dtD = t.dt ? t.dt.replace('T',' ').slice(0,16) : '未知'; 
                 return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;border:1px solid rgba(48,209,88,0.4)">💸</div><div style="min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.name)} 還給 ${esc(to.name)}</div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; 
             }).join(''); 
         } else { 
@@ -1387,7 +1512,9 @@ function sheetTitle() {
         delMemberPwd:'刪除旅伴',
         addTransfer:'記錄還款',
         groupExpenses:'團隊消費紀錄',
-        personalExpenses:'我的消費紀錄'
+        personalExpenses:'我的消費紀錄',
+        debtDetail:'欠款明細',
+        myCatDetail:'分類開支明細'
     }[sheet] || ''; 
 }
 
@@ -1404,6 +1531,10 @@ function sheetBody() {
         html = renderCompactExpenseList('group');
     } else if(sheet === 'personalExpenses') {
         html = renderCompactExpenseList('personal');
+    } else if(sheet === 'debtDetail') {
+        html = renderDebtDetail(editId);
+    } else if(sheet === 'myCatDetail') {
+        html = renderMyCatDetail(editId);
     }
     return html + '<div style="height:120px; padding-bottom:env(safe-area-inset-bottom); width:100%; flex-shrink:0;"></div>';
 }
@@ -1481,10 +1612,8 @@ function forms() {
     if(sheet === 'addExpense' || sheet === 'editExpense') {
         const e = sheet === 'editExpense' ? expenses().find(x=>x.id===editId) : null;
         
-        // 【修正 1】一開始預設無人分擔 (吉嘅 Array)
         const sw = e && e.sharedWith ? e.sharedWith : []; 
         
-        // 【修正 2】付款人預設選取當前身份 (state.me)
         const payerOptions = members().length > 0 
             ? members().map(m=>`<option value="${m.id}" ${(e?e.paidBy:state.me)===m.id?'selected':''}>${esc(m.name)}</option>`).join('') 
             : `<option disabled selected>請先新增旅伴</option>`;
@@ -1567,7 +1696,7 @@ function forms() {
         <input id="eloc" class="input" placeholder="例如：東京" value="${esc(e?e.location:'')}">
         
         <div class="k" style="margin-top:20px">日期時間</div>
-        <input id="edt" class="input" type="datetime-local" value="${e&&e.dt&&e.dt.length>15 ? e.dt.slice(0,16) : nowISO()}">
+        <input id="edt" class="input" type="datetime-local" value="${e&&e.dt ? e.dt.slice(0,16) : nowISO()}">
 
         <div class="k" style="margin-top:20px">備註 (可留空)</div>
         <textarea id="enote" class="textarea" rows="2" placeholder="有咩特別要記低？">${esc(e?e.note:'')}</textarea>
@@ -1604,7 +1733,7 @@ function viewExpense(e) {
                     const ed = members().find(m=>m.id===h.by)||{name:'未知',color:'#fff'};
                     return `
                     <div style="font-size:13px;color:#ccc;margin-top:10px;padding:14px;background:rgba(255,255,255,0.08);border-radius:14px;box-shadow:inset 0 1px 2px rgba(0,0,0,0.2);position:relative;z-index:3;">
-                        [${new Date(h.ts).toLocaleString()}] <span style="color:${ed.color};font-weight:700">${esc(ed.name)}</span> ${esc(h.action)}
+                        [${h.ts ? h.ts.replace('T', ' ').slice(0,16) : '未知'}] <span style="color:${ed.color};font-weight:700">${esc(ed.name)}</span> ${esc(h.action)}
                     </div>`;
                 }).join('')}
             </div>
@@ -1626,9 +1755,9 @@ function viewExpense(e) {
     <div class="acrylic-list-panel">
         <div class="row" style="align-items:flex-start;padding:28px 20px">
             <div style="width:60px;height:60px;border-radius:20px;background:${c[3]}33;display:grid;place-items:center;font-size:32px;box-shadow:inset 0 1px 3px rgba(255,255,255,0.2), 0 6px 16px rgba(0,0,0,0.3); border:1px solid ${c[3]}88">${c[2]}</div>
-            <div style="flex:1;">
-                <div style="font-size:26px;font-weight:800;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${esc(e.name)}</div>
-                <div class="muted">${e.dt?(e.dt.length>18?e.dt.replace('T',' ').slice(0,16):e.dt):'未知'}${e.location?' · '+esc(e.location):''}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:26px;font-weight:800;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.name)}</div>
+                <div class="muted">${e.dt ? e.dt.replace('T',' ').slice(0,16) : '未知'}${e.location?' · '+esc(e.location):''}</div>
             </div>
             <div class="right">
                 <div class="amt" style="font-size:26px;text-shadow:0 2px 8px rgba(0,0,0,0.4);">${moneyText(+e.amount||0)}</div>
@@ -1721,7 +1850,6 @@ function bindSheet() {
             el.style.boxShadow = '0 4px 16px rgba(255,159,10,0.4)';
             el.style.color = '#fff';
 
-            // 切換個人與共用選項介面
             const type = el.getAttribute('data-type');
             const shareArea = document.getElementById('shareOptionsArea');
             if (shareArea) {
@@ -1858,7 +1986,6 @@ function saveExpense() {
         if(x.checked) sharedWith.push(x.getAttribute('data-share')); 
     });
 
-    // 驗證是否有人夾錢
     if(type === 'shared' && sharedWith.length === 0) {
         return toast('❌ 請至少選擇一位分擔人');
     }
@@ -1891,18 +2018,18 @@ function saveExpense() {
         }
         if(idx !== -1) {
             const oldE = state.expenses[idx];
-            obj.dt = oldE.dt; 
+            obj.dt = $('#edt').value || oldE.dt; 
             obj.editHistory = oldE.editHistory || [];
             obj.editHistory.push({
-                ts: new Date().toISOString(), 
+                ts: nowISO(), 
                 by: state.me, 
-                action: `修改金額 (原金額: ${oldE.amount} ${oldE.currency})`
+                action: `修改了紀錄`
             });
             state.expenses[idx] = obj; 
             editId = null;
         }
     } else {
-        obj.dt = new Date($('#edt').value).toISOString(); 
+        obj.dt = $('#edt').value || nowISO(); 
         state.expenses.unshift(obj);
     }
     
@@ -2010,9 +2137,19 @@ function boot() {
     tripRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
+            // 🤖 時區自動修復器：攔截並修復帶有 'Z' (UTC) 嘅錯誤時間
+            const fixTime = dt => {
+                if(dt && dt.endsWith('Z')) {
+                    let d = new Date(dt);
+                    let z = n => String(n).padStart(2,'0');
+                    return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`;
+                }
+                return dt;
+            };
+
             state.members = data.members || [];
-            state.expenses = data.expenses || [];
-            state.transfers = data.transfers || [];
+            state.expenses = (data.expenses || []).map(e => ({...e, dt: fixTime(e.dt)}));
+            state.transfers = (data.transfers || []).map(t => ({...t, dt: fixTime(t.dt)}));
             state.snapshots = data.snapshots || [];
         } else {
             state.members = [];
