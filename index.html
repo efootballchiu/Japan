@@ -819,17 +819,6 @@ let state = {
 };
 let tab = 'home', sheet = '', editId = null, rates = null, rateTs = 0;
 
-function saveState(s) { 
-    localStorage.setItem(localKey, s.me || '');
-    const syncData = {
-        members: s.members || [],
-        expenses: s.expenses || [],
-        transfers: s.transfers || [],
-        snapshots: s.snapshots || []
-    };
-    tripRef.set(syncData); 
-}
-
 function toast(t) { 
     const e = $('#toast'); 
     e.innerHTML = t; 
@@ -955,10 +944,9 @@ function calcConsumed() {
 function calcBalances() {
     const b = Object.fromEntries(members().map(m => [m.id, 0]));
     activeExpenses().forEach(e => {
-        if(e.type === 'personal') {
-            if (e.paidBy !== 'all' && b[e.paidBy] != null) b[e.paidBy] += (+e.jpy || toJpy(e.amount, e.currency)) || 0;
-            return; 
-        } 
+        // 修正：徹底剔除個人消費，唔會再錯誤計入整體群組欠款度
+        if(e.type === 'personal') return; 
+        
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0; 
         if (e.paidBy !== 'all') {
             if(b[e.paidBy] != null) b[e.paidBy] += a;
@@ -1487,7 +1475,7 @@ function switchMe(id) {
         if(pwd !== tm.pwd && pwd !== 'chiu') return toast('❌ 密碼錯誤');
     }
     state.me = id; 
-    saveState(state); 
+    localStorage.setItem(localKey, state.me || '');
     toast(`✅ 切換為 ${tm.name}`); 
     safeRender();
 }
@@ -1979,16 +1967,18 @@ function saveMember() {
     else if(isE) alert("🍝 系統廣播：偵測到 16 Pro 意粉出沒注意！\n\nEthan，去到日本就咪鬼再日日食意粉啦，留返啲 Quota 食和牛好過啦！記住準時找數呀！");
     else if(isW) alert("👰 系統廣播：偵測到 13 mini 偉樂駕到！\n\nWai Lok，帶埋老婆去旅行定係點呀？幫毛盈盈買手信記得自己出錢，唔好入公數呀！");
     
-    state.members.push({id,name,color,avatar,pwd});
-    if(!state.me) state.me = id;
-    saveState(state);
-    
-    if(isR) toast('🐢 已收留烏龜'); 
-    else if(isE) toast('🍝 意粉已加入'); 
-    else if(isW) toast('👰 老公已連線'); 
-    else toast('✅ 已新增');
-    
-    closeSheet(); 
+    const memberObj = {id,name,color,avatar,pwd};
+    tripRef.child('members').child(id).set(memberObj).then(() => {
+        if(!state.me) {
+            state.me = id;
+            localStorage.setItem(localKey, state.me);
+        }
+        if(isR) toast('🐢 已收留烏龜'); 
+        else if(isE) toast('🍝 意粉已加入'); 
+        else if(isW) toast('👰 老公已連線'); 
+        else toast('✅ 已新增');
+        closeSheet(); 
+    });
 }
 
 function delMember(id) { 
@@ -1998,15 +1988,15 @@ function delMember(id) {
 function confirmDelMember() {
     const pwd = $('#delPwd').value;
     if(pwd !== 'chiu') return toast('❌ 密碼錯誤');
-    const newMembers = [];
-    state.members.forEach(x => { 
-        if(x.id !== editId) newMembers.push(x); 
+    
+    tripRef.child('members').child(editId).remove().then(() => {
+        if(state.me === editId) {
+            state.me = '';
+            localStorage.setItem(localKey, '');
+        }
+        toast('✅ 已刪除'); 
+        closeSheet(); 
     });
-    state.members = newMembers;
-    if(state.me === editId) state.me = (state.members[0] ? state.members[0].id : '');
-    saveState(state);
-    toast('✅ 已刪除'); 
-    closeSheet(); 
 }
 
 function saveExpense() {
@@ -2056,30 +2046,25 @@ function saveExpense() {
     };
     
     if(editId) {
-        let idx = -1;
-        for(let i=0; i<state.expenses.length; i++) { 
-            if(state.expenses[i].id === editId) idx = i; 
-        }
-        if(idx !== -1) {
-            const oldE = state.expenses[idx];
-            obj.dt = $('#edt').value || oldE.dt; 
-            obj.editHistory = oldE.editHistory || [];
-            obj.editHistory.push({
-                ts: nowISO(), 
-                by: state.me, 
-                action: `修改了紀錄`
-            });
-            state.expenses[idx] = obj; 
-            editId = null;
-        }
+        let oldE = state.expenses.find(x => x.id === editId) || {};
+        obj.dt = $('#edt').value || oldE.dt; 
+        obj.editHistory = oldE.editHistory || [];
+        obj.editHistory.push({
+            ts: nowISO(), 
+            by: state.me, 
+            action: `修改了紀錄`
+        });
+        tripRef.child('expenses').child(editId).update(obj).then(() => {
+            toast('✅ 已儲存修改'); 
+            closeSheet(); 
+        });
     } else {
         obj.dt = $('#edt').value || nowISO(); 
-        state.expenses.unshift(obj);
+        tripRef.child('expenses').child(id).set(obj).then(() => {
+            toast('✅ 已新增消費'); 
+            closeSheet(); 
+        });
     }
-    
-    saveState(state); 
-    toast('✅ 已儲存紀錄'); 
-    closeSheet(); 
 }
 
 function startEditExpense(id) { 
@@ -2089,16 +2074,10 @@ function startEditExpense(id) {
 }
 
 function delExpense(id) {
-    let e = null;
-    state.expenses.forEach(x => { 
-        if(x.id === id) e = x; 
+    tripRef.child('expenses').child(id).update({deleted: true}).then(() => {
+        toast('🗑️ 已隱藏 (可喺明細永久刪除)'); 
+        closeSheet(); 
     });
-    if(!e) return;
-    
-    e.deleted = true; 
-    saveState(state); 
-    toast('🗑️ 已隱藏 (可喺明細永久刪除)'); 
-    closeSheet(); 
 }
 
 function saveTransfer() {
@@ -2110,47 +2089,34 @@ function saveTransfer() {
     if(!to) return toast('❌ 請選擇收款人'); 
     if(from === to) return toast('❌ 無法還款給自己');
     
+    const id = 't_' + Date.now() + Math.random().toString(36).slice(2,7);
     const t = {
-        id: 't_' + Date.now() + Math.random().toString(36).slice(2,7), 
+        id: id, 
         from, to, amount: amt, currency: $('#tCur').value, 
         jpy: toJpy(amt,$('#tCur').value), 
         dt: nowISO(), note: $('#tNote').value.trim()
     };
     
-    if(!state.transfers) state.transfers = [];
-    state.transfers.unshift(t); 
-    saveState(state); 
-    toast('✅ 已記錄還款'); 
-    closeSheet(); 
+    tripRef.child('transfers').child(id).set(t).then(() => {
+        toast('✅ 已記錄還款'); 
+        closeSheet(); 
+    });
 }
 
 function deleteTransfer(id) {
-    let t = null; 
-    state.transfers.forEach(x => { 
-        if(x.id === id) t = x; 
-    });
     if(!confirm('確定刪除？')) return;
-    
-    const newTransfers = [];
-    state.transfers.forEach(x => { 
-        if(x.id !== id) newTransfers.push(x); 
+    tripRef.child('transfers').child(id).remove().then(() => {
+        toast('🗑️ 已刪除'); 
     });
-    state.transfers = newTransfers;
-    saveState(state); 
-    toast('🗑️ 已刪除'); 
 }
 
-// 🚨 終極強制永久刪除功能
+// 🚨 終極強制永久刪除功能 (Firebase 直連)
 function forceDelete(type, id) {
-    if (type === 'expense') {
-        state.expenses = state.expenses.filter(e => e.id !== id);
-    } else if (type === 'transfer') {
-        state.transfers = state.transfers.filter(t => t.id !== id);
-    }
-    saveState(state);
-    toast('🗑️ 已永久刪除');
-    openSheet('debtDetail', editId); 
-    safeRender(); 
+    const path = type === 'expense' ? 'expenses' : 'transfers';
+    tripRef.child(path).child(id).remove().then(() => {
+        toast('🗑️ 已永久刪除'); 
+        openSheet('debtDetail', editId); 
+    });
 }
 
 function resetAllData() {
@@ -2158,11 +2124,10 @@ function resetAllData() {
     if(!confirm('⚠️ 確定清除所有資料？')) return;
     
     localStorage.removeItem(localKey); 
-    tripRef.remove(); 
-    
-    state = {members:[], expenses:[], snapshots:[], transfers:[], me:''};
-    toast('✅ 已徹底清除'); 
-    closeSheet(); 
+    tripRef.remove().then(() => {
+        toast('✅ 已徹底清除'); 
+        closeSheet(); 
+    });
 }
 
 function copyLink() { 
@@ -2195,6 +2160,7 @@ function boot() {
     tripRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
+            // 🤖 時區自動修復器
             const fixTime = dt => {
                 if(dt && dt.endsWith('Z')) {
                     let d = new Date(dt);
@@ -2204,10 +2170,13 @@ function boot() {
                 return dt;
             };
 
-            state.members = data.members || [];
-            state.expenses = (data.expenses || []).map(e => ({...e, dt: fixTime(e.dt)}));
-            state.transfers = (data.transfers || []).map(t => ({...t, dt: fixTime(t.dt)}));
-            state.snapshots = data.snapshots || [];
+            // Firebase 將 Object 轉返 Array
+            const toArray = (obj) => obj ? Object.values(obj) : [];
+
+            state.members = toArray(data.members);
+            state.expenses = toArray(data.expenses).map(e => ({...e, dt: fixTime(e.dt)})).sort((a,b) => new Date(b.dt) - new Date(a.dt));
+            state.transfers = toArray(data.transfers).map(t => ({...t, dt: fixTime(t.dt)})).sort((a,b) => new Date(b.dt) - new Date(a.dt));
+            state.snapshots = toArray(data.snapshots);
         } else {
             state.members = [];
             state.expenses = [];
