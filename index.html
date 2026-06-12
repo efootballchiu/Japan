@@ -1053,7 +1053,7 @@ function transferRow(t, isBtn=false) {
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;position:relative;z-index:3;flex-shrink:0;">
             <div class="amt" onclick="openSheet('debtDetail', '${t.from}|${t.to}')" style="font-size:18px;color:${col};text-shadow:0 1px 4px rgba(0,0,0,0.5);">${moneyText(t.amt)}</div>
-            ${isBtn ? `<button class="b" style="width:auto;padding:6px 16px;min-height:0;border-radius:12px;font-size:12px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt}); event.stopPropagation();">還款</button>` : ''}
+            ${isBtn ? `<button class="b" style="width:auto;padding:6px 16px;min-height:0;border-radius:12px;font-size:12px;background:rgba(255,255,255,0.15);box-shadow:none;color:#fff;" onclick="openTransfer('${t.from}','${t.to}',${t.amt},'JPY',''); event.stopPropagation();">還款</button>` : ''}
         </div>
     </div>`;
 }
@@ -1151,36 +1151,45 @@ function renderDebtDetail(ids) {
     activeExpenses().forEach(e => {
         if(e.type === 'personal' || e.paidBy === 'all') return;
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0;
+        if(a === 0) return;
         const sw = (e.sharedWith && e.sharedWith.length) ? e.sharedWith : members().map(m=>m.id);
 
-        if (e.paidBy === crId && sw.includes(dbId)) {
-            let dbShare = 0;
+        let shareRatio = 0;
+        let targetId = null;
+
+        if (e.paidBy === crId && sw.includes(dbId)) targetId = dbId;
+        else if (e.paidBy === dbId && sw.includes(crId)) targetId = crId;
+
+        if (targetId) {
             if(e.splitMode === 'manual' && e.splits) {
                 let sT = 0; Object.values(e.splits).forEach(v => sT += (+v||0));
-                const fR = (e.amount>0 && sT>0) ? (a/sT) : 1;
-                if(e.splits[dbId]) dbShare = e.splits[dbId] * fR;
+                if(sT > 0 && e.splits[targetId]) shareRatio = e.splits[targetId] / sT;
             } else {
-                dbShare = a / sw.length;
+                shareRatio = 1 / sw.length;
             }
-            if(dbShare > 0) logs.push({dt: e.dt, type: 'expense', name: e.name, amt: dbShare, sign: '+'});
         }
-        else if (e.paidBy === dbId && sw.includes(crId)) {
-            let crShare = 0;
-            if(e.splitMode === 'manual' && e.splits) {
-                let sT = 0; Object.values(e.splits).forEach(v => sT += (+v||0));
-                const fR = (e.amount>0 && sT>0) ? (a/sT) : 1;
-                if(e.splits[crId]) crShare = e.splits[crId] * fR;
-            } else {
-                crShare = a / sw.length;
-            }
-            if(crShare > 0) logs.push({dt: e.dt, type: 'expense', name: e.name, amt: crShare, sign: '-'});
+
+        if (shareRatio > 0) {
+            let jpyShare = a * shareRatio;
+            let origShare = e.amount * shareRatio;
+            logs.push({
+                id: e.id,
+                dt: e.dt,
+                type: 'expense',
+                name: e.name,
+                amt: jpyShare,
+                origAmt: origShare,
+                origCur: e.currency,
+                sign: e.paidBy === crId ? '+' : '-', 
+                raw: e
+            });
         }
     });
 
     transfers().forEach(t => {
         const tA = (+t.jpy||0);
-        if (t.from === dbId && t.to === crId) logs.push({dt: t.dt, type: 'transfer', name: '已還款', amt: tA, sign: '-'});
-        if (t.from === crId && t.to === dbId) logs.push({dt: t.dt, type: 'transfer', name: '已還款', amt: tA, sign: '+'});
+        if (t.from === dbId && t.to === crId) logs.push({id: t.id, dt: t.dt, type: 'transfer', name: '已還款', amt: tA, origAmt: t.amount, origCur: t.currency, sign: '-', raw: t});
+        if (t.from === crId && t.to === dbId) logs.push({id: t.id, dt: t.dt, type: 'transfer', name: '已還款', amt: tA, origAmt: t.amount, origCur: t.currency, sign: '+', raw: t});
     });
 
     logs.sort((a,b) => b.dt.localeCompare(a.dt));
@@ -1193,8 +1202,43 @@ function renderDebtDetail(ids) {
         totalOwe += (l.sign === '+' ? l.amt : -l.amt);
         let col = l.sign === '+' ? '#ff453a' : '#30d158'; 
         let icon = l.type === 'transfer' ? '💸' : '🧾';
-        let dt = l.dt ? l.dt.slice(5,10).replace('-','/') : '';
-        h += `<div class="listTop"><div style="display:flex;gap:12px;align-items:center"><div style="font-size:20px">${icon}</div><div><div style="font-weight:700;font-size:15px;color:#fff">${esc(l.name)}</div><div class="muted" style="font-size:11px">${dt}</div></div></div><div class="amt" style="color:${col};font-size:16px">${l.sign}${moneyText(l.amt)}</div></div>`;
+        let dt = l.dt ? l.dt.replace('T',' ').slice(5,16) : '';
+        
+        let origStr = l.origCur !== 'JPY' ? `<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">(原幣: ${l.origCur} ${+(l.origAmt.toFixed(2))})</div>` : '';
+        
+        let actionBtns = '';
+        if (l.type === 'expense') {
+            actionBtns = `
+                <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end;">
+                    <button class="b2" style="min-height:0;padding:6px 14px;font-size:13px;border-radius:10px;width:auto;border-color:rgba(255,69,58,0.4);color:#ff453a;" onclick="if(confirm('🚨 確定永久刪除此紀錄？\\n注意：此動作不可復原！')){ forceDelete('${l.type}', '${l.id}'); } event.stopPropagation();">🗑️ 永久刪除</button>
+                    ${l.sign === '+' ? `<button class="b" style="min-height:0;padding:6px 14px;font-size:13px;border-radius:10px;width:auto;background:linear-gradient(135deg, #30d158, #28a745);box-shadow:none;" onclick="openTransfer('${dbId}', '${crId}', ${+(l.origAmt.toFixed(2))}, '${l.origCur}', '還款: ${esc(l.name)}'); event.stopPropagation();">💸 獨立還此筆</button>` : ''}
+                </div>
+            `;
+        } else {
+             actionBtns = `
+                <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end;">
+                    <button class="b2" style="min-height:0;padding:6px 14px;font-size:13px;border-radius:10px;width:auto;border-color:rgba(255,69,58,0.4);color:#ff453a;" onclick="if(confirm('🚨 確定永久刪除此還款？\\n注意：此動作不可復原！')){ forceDelete('${l.type}', '${l.id}'); } event.stopPropagation();">🗑️ 永久刪除</button>
+                </div>
+            `;
+        }
+
+        h += `
+        <div class="listTop" style="flex-direction:column;align-items:stretch;gap:8px;" onclick="${l.type==='expense'?`openExpense('${l.id}')`:''}">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;gap:12px;align-items:center">
+                    <div style="font-size:20px">${icon}</div>
+                    <div>
+                        <div style="font-weight:700;font-size:15px;color:#fff">${esc(l.name)}</div>
+                        <div class="muted" style="font-size:11px">${dt}</div>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="amt" style="color:${col};font-size:16px">${l.sign}${moneyText(l.amt)}</div>
+                    ${origStr}
+                </div>
+            </div>
+            ${actionBtns}
+        </div>`;
     });
     h += `</div>`;
     h += `<div style="margin-top:24px;text-align:right;font-size:18px;font-weight:800;color:#fff;">總共欠款: <span style="color:#ff453a;font-size:24px;">${moneyText(totalOwe>0?totalOwe:0)}</span></div>`;
@@ -1398,7 +1442,7 @@ function render() {
                 const f = members().find(m=>m.id===t.from) || {name:'?'}; 
                 const to = members().find(m=>m.id===t.to) || {name:'?'}; 
                 const dtD = t.dt ? t.dt.replace('T',' ').slice(0,16) : '未知'; 
-                return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;border:1px solid rgba(48,209,88,0.4)">💸</div><div style="min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.name)} 還給 ${esc(to.name)}</div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="deleteTransfer('${t.id}')">×</button></div></div>`; 
+                return `<div class="listTop"><div style="display:flex;gap:16px;align-items:center;position:relative;z-index:3"><div style="width:50px;height:50px;border-radius:16px;background:rgba(48,209,88,0.15);display:grid;place-items:center;font-size:24px;border:1px solid rgba(48,209,88,0.4)">💸</div><div style="min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.name)} 還給 ${esc(to.name)}</div><div class="muted">${dtD} ${t.note?' · '+esc(t.note):''}</div></div></div><div class="right" style="display:flex;align-items:center;gap:14px;position:relative;z-index:3"><div class="amt" style="color:#30d158">+${moneyText(t.jpy)}</div><button class="x" onclick="if(confirm('🚨 確定永久刪除此還款紀錄？\\n注意：此動作不可復原！')){ forceDelete('transfer', '${t.id}'); }">×</button></div></div>`; 
             }).join(''); 
         } else { 
             h += `<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有還款記錄</div></div>`; 
@@ -1460,8 +1504,8 @@ function openExpense(id) {
     renderSheet(); 
 }
 
-function openTransfer(from, to, amt) { 
-    openSheet('addTransfer', JSON.stringify({from, to, amt})); 
+function openTransfer(from, to, amt, cur, note) { 
+    openSheet('addTransfer', JSON.stringify({from, to, amt, cur: cur||'JPY', note: note||''})); 
 }
 
 function closeSheet() { 
@@ -1557,17 +1601,17 @@ function forms() {
         <div class="grid2" style="margin-top:20px">
             <div>
                 <div class="k">金額</div>
-                <input id="tAmt" type="number" class="input" value="${d.amt?Math.round(d.amt):''}">
+                <input id="tAmt" type="number" step="0.01" class="input" value="${d.amt?Number(d.amt):''}">
             </div>
             <div>
                 <div class="k">貨幣</div>
                 <select id="tCur" class="select">
-                    ${CURS.map(c=>`<option ${c==='JPY'?'selected':''}>${c}</option>`).join('')}
+                    ${CURS.map(c=>`<option ${c===(d.cur||'JPY')?'selected':''}>${c}</option>`).join('')}
                 </select>
             </div>
         </div>
         <div class="k" style="margin-top:20px">備註 (可留空)</div>
-        <input id="tNote" class="input" placeholder="可留空">
+        <input id="tNote" class="input" placeholder="可留空" value="${esc(d.note||'')}">
         <div style="height:32px"></div>
         <button class="b" onclick="saveTransfer()">確認還款</button>`;
     }
@@ -1644,7 +1688,7 @@ function forms() {
         <div class="grid2" style="margin-top:20px">
             <div>
                 <div class="k">金額</div>
-                <input id="eamt" type="number" class="input" placeholder="0.00" value="${e?e.amount:''}">
+                <input id="eamt" type="number" step="0.01" class="input" placeholder="0.00" value="${e?e.amount:''}">
             </div>
             <div>
                 <div class="k">貨幣</div>
@@ -2053,7 +2097,7 @@ function delExpense(id) {
     
     e.deleted = true; 
     saveState(state); 
-    toast('🗑️ 已刪除'); 
+    toast('🗑️ 已隱藏 (可喺明細永久刪除)'); 
     closeSheet(); 
 }
 
@@ -2096,6 +2140,19 @@ function deleteTransfer(id) {
     toast('🗑️ 已刪除'); 
 }
 
+// 🚨 終極強制永久刪除功能
+function forceDelete(type, id) {
+    if (type === 'expense') {
+        state.expenses = state.expenses.filter(e => e.id !== id);
+    } else if (type === 'transfer') {
+        state.transfers = state.transfers.filter(t => t.id !== id);
+    }
+    saveState(state);
+    toast('🗑️ 已永久刪除');
+    openSheet('debtDetail', editId); 
+    safeRender(); 
+}
+
 function resetAllData() {
     if(prompt('請輸入 Admin 密碼：') !== 'chiu') return toast('❌ 密碼錯誤');
     if(!confirm('⚠️ 確定清除所有資料？')) return;
@@ -2127,6 +2184,7 @@ function bindGlobal() {
     window.openTransfer = openTransfer; 
     window.saveTransfer = saveTransfer; 
     window.deleteTransfer = deleteTransfer;
+    window.forceDelete = forceDelete;
     window.resetAllData = resetAllData; 
     window.copyLink = copyLink; 
 }
@@ -2137,7 +2195,6 @@ function boot() {
     tripRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // 🤖 時區自動修復器：攔截並修復帶有 'Z' (UTC) 嘅錯誤時間
             const fixTime = dt => {
                 if(dt && dt.endsWith('Z')) {
                     let d = new Date(dt);
