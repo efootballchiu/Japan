@@ -74,7 +74,7 @@ body.sheet-open #app-container {
     pointer-events: none;
 }
 
-/* 滾動內容區 */
+/* 滾持內容區 */
 .scroll-wrapper {
     position: absolute; 
     inset: 0; 
@@ -944,7 +944,6 @@ function calcConsumed() {
 function calcBalances() {
     const b = Object.fromEntries(members().map(m => [m.id, 0]));
     activeExpenses().forEach(e => {
-        // 修正：徹底剔除個人消費，唔會再錯誤計入整體群組欠款度
         if(e.type === 'personal') return; 
         
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0; 
@@ -1233,6 +1232,43 @@ function renderDebtDetail(ids) {
     return h;
 }
 
+function renderDebtSummary(targetId) {
+    const targetM = members().find(m=>m.id===targetId) || {name:'未知'};
+    const aT = calcGrossTransfers();
+    const iOwe = aT.filter(t => t.from === targetId);
+    const owesMe = aT.filter(t => t.to === targetId);
+
+    let h = `<div class="k" style="margin-bottom:16px;">💸 ${esc(targetM.name)} 要還畀人：</div><div class="acrylic-list-panel">`;
+    if(iOwe.length === 0) h += `<div class="row"><div class="muted" style="padding:4px">無欠款 🎉</div></div>`;
+    iOwe.forEach(t => {
+        const to = members().find(m=>m.id===t.to) || {name:'?'};
+        h += `<div class="listTop" onclick="openSheet('debtDetail', '${t.from}|${t.to}')">
+            <div style="display:flex;gap:12px;align-items:center">
+                <div class="avatar" style="width:36px;height:36px;font-size:14px">${renderAvatar(to)}</div>
+                <div style="font-weight:700;font-size:16px;color:#fff">${esc(to.name)}</div>
+            </div>
+            <div class="amt" style="color:#ff453a;font-size:18px">-${moneyText(t.amt)}</div>
+        </div>`;
+    });
+    h += `</div>`;
+
+    h += `<div class="k" style="margin-top:24px;margin-bottom:16px;">💰 人哋爭 ${esc(targetM.name)}：</div><div class="acrylic-list-panel">`;
+    if(owesMe.length === 0) h += `<div class="row"><div class="muted" style="padding:4px">無人爭錢</div></div>`;
+    owesMe.forEach(t => {
+        const from = members().find(m=>m.id===t.from) || {name:'?'};
+        h += `<div class="listTop" onclick="openSheet('debtDetail', '${t.from}|${t.to}')">
+            <div style="display:flex;gap:12px;align-items:center">
+                <div class="avatar" style="width:36px;height:36px;font-size:14px">${renderAvatar(from)}</div>
+                <div style="font-weight:700;font-size:16px;color:#fff">${esc(from.name)}</div>
+            </div>
+            <div class="amt" style="color:#30d158;font-size:18px">+${moneyText(t.amt)}</div>
+        </div>`;
+    });
+    h += `</div>`;
+
+    return h;
+}
+
 function renderMyCatDetail(catId) {
     const cInfo = findCat(catId);
     const myI = state.me;
@@ -1310,13 +1346,11 @@ function render() {
     const bd = members().map(m => ({...m, total:(aB[m.id]||0)})).sort((a,b) => b.total - a.total);
     const sBd = members().map(m => ({...m, spent:cs[m.id]||0})).sort((a,b) => b.spent - a.spent);
     
-    // 計算團隊總分類
     const cM = Object.fromEntries(CATS.map(c=>[c[0],0])); 
     ex.forEach(e => cM[e.cat] = (cM[e.cat]||0) + ((+e.jpy)||toJpy(e.amount,e.currency)));
     const ct = CATS.map(c => ({id:c[0], label:c[1], icon:c[2], color:c[3], amt:cM[c[0]]||0})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
     const cTot = ct.reduce((s,c) => s + c.amt, 0);
 
-    // 計算個人分類
     const myCatM = Object.fromEntries(CATS.map(c=>[c[0],0]));
     ex.forEach(e => {
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0;
@@ -1378,13 +1412,15 @@ function render() {
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有消費</div></div>';
         h += `</div></div>`;
         
-        h += `<div class="section"><h2>財務狀況榜 (結清進度)</h2><div class="acrylic-list-panel">`;
+        // 恢復全村人財務狀況榜，但加咗 onclick 功能！
+        h += `<div class="section"><h2>財務狀況榜 (結清進度 - 撳入睇明細)</h2><div class="acrylic-list-panel">`;
         h += bd.length ? bd.map((m,i) => { 
             let sT = m.total>1 ? '大債主 🔥' : m.total<-1 ? '爭人錢 💸' : '已結清'; 
             let c = m.total>1 ? '#30d158' : m.total<-1 ? '#ff453a' : '#8e8e93'; 
             let s = m.total>1 ? '+' : ''; 
             let mAv = renderAvatar(m); 
-            return `<div class="row"><div style="width:32px;color:#8e8e93;font-weight:800;font-size:17px;">${i+1}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}</div><div class="muted">${sT}</div></div><div class="amt" style="color:${c}">${s}${moneyText(m.total)}</div></div>`; 
+            let meBadge = m.id === state.me ? ` <span class="pill" style="margin-left:4px;background:rgba(10,132,255,0.3);color:#0a84ff;padding:2px 6px;font-size:10px;">你</span>` : '';
+            return `<div class="row" onclick="openSheet('debtSummary', '${m.id}')"><div style="width:32px;color:#8e8e93;font-weight:800;font-size:17px;">${i+1}</div><div class="avatar">${mAv}</div><div style="flex:1;min-width:0"><div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}${meBadge}</div><div class="muted">${sT}</div></div><div class="amt" style="color:${c}">${s}${moneyText(m.total)}</div></div>`; 
         }).join('') : '<div class="row"><div class="muted" style="position:relative;z-index:3;padding:16px">未有旅伴</div></div>';
         h += `</div></div>`;
         
@@ -1424,6 +1460,7 @@ function render() {
         h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>`;
         h += aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="acrylic-list-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清</div></div></div>';
         h += `<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div>`;
+        
         h += `<div class="section"><h2>還款紀錄</h2><div class="acrylic-list-panel">`;
         if(transfers().length) { 
             h += transfers().map(t => { 
@@ -1546,7 +1583,8 @@ function sheetTitle() {
         groupExpenses:'團隊消費紀錄',
         personalExpenses:'我的消費紀錄',
         debtDetail:'欠款明細',
-        myCatDetail:'分類開支明細'
+        myCatDetail:'分類開支明細',
+        debtSummary:'個人財務結算明細'
     }[sheet] || ''; 
 }
 
@@ -1567,6 +1605,8 @@ function sheetBody() {
         html = renderDebtDetail(editId);
     } else if(sheet === 'myCatDetail') {
         html = renderMyCatDetail(editId);
+    } else if(sheet === 'debtSummary') {
+        html = renderDebtSummary(editId);
     }
     return html + '<div style="height:120px; padding-bottom:env(safe-area-inset-bottom); width:100%; flex-shrink:0;"></div>';
 }
@@ -2054,7 +2094,7 @@ function saveExpense() {
             by: state.me, 
             action: `修改了紀錄`
         });
-        tripRef.child('expenses').child(editId).update(obj).then(() => {
+        tripRef.child('expenses').child(editId).set(obj).then(() => {
             toast('✅ 已儲存修改'); 
             closeSheet(); 
         });
@@ -2110,7 +2150,6 @@ function deleteTransfer(id) {
     });
 }
 
-// 🚨 終極強制永久刪除功能 (Firebase 直連)
 function forceDelete(type, id) {
     const path = type === 'expense' ? 'expenses' : 'transfers';
     tripRef.child(path).child(id).remove().then(() => {
@@ -2160,7 +2199,6 @@ function boot() {
     tripRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // 🤖 時區自動修復器
             const fixTime = dt => {
                 if(dt && dt.endsWith('Z')) {
                     let d = new Date(dt);
@@ -2170,7 +2208,6 @@ function boot() {
                 return dt;
             };
 
-            // Firebase 將 Object 轉返 Array
             const toArray = (obj) => obj ? Object.values(obj) : [];
 
             state.members = toArray(data.members);
