@@ -74,7 +74,7 @@ body.sheet-open #app-container {
     pointer-events: none;
 }
 
-/* 滾持內容區 */
+/* 滾動內容區 */
 .scroll-wrapper {
     position: absolute; 
     inset: 0; 
@@ -1346,11 +1346,13 @@ function render() {
     const bd = members().map(m => ({...m, total:(aB[m.id]||0)})).sort((a,b) => b.total - a.total);
     const sBd = members().map(m => ({...m, spent:cs[m.id]||0})).sort((a,b) => b.spent - a.spent);
     
+    // 計算團隊總分類
     const cM = Object.fromEntries(CATS.map(c=>[c[0],0])); 
     ex.forEach(e => cM[e.cat] = (cM[e.cat]||0) + ((+e.jpy)||toJpy(e.amount,e.currency)));
     const ct = CATS.map(c => ({id:c[0], label:c[1], icon:c[2], color:c[3], amt:cM[c[0]]||0})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
     const cTot = ct.reduce((s,c) => s + c.amt, 0);
 
+    // 計算個人分類
     const myCatM = Object.fromEntries(CATS.map(c=>[c[0],0]));
     ex.forEach(e => {
         const a = (+e.jpy || toJpy(e.amount, e.currency)) || 0;
@@ -1457,11 +1459,12 @@ function render() {
         h += `</div></div>`;
     } 
     else if(tab === 'settle') {
-        h += `<div class="section" style="margin-top:8px"><h2>一對一欠款明細 (剩餘要還)</h2>`;
-        h += aT.length ? aT.map(t=>transferRow(t,true)).join('') : '<div class="acrylic-list-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 全部已結清</div></div></div>';
+        const myTransfers = aT.filter(t => t.from === myI || t.to === myI);
+        h += `<div class="section" style="margin-top:8px"><h2>💳 與我相關嘅欠款明細 (剩餘要還)</h2>`;
+        h += myTransfers.length ? myTransfers.map(t=>transferRow(t,true)).join('') : '<div class="acrylic-list-panel"><div class="row"><div class="name" style="color:#30d158;position:relative;z-index:3;text-shadow:0 1px 4px rgba(48,209,88,0.3);">✓ 目前無任何與你相關嘅欠款！</div></div></div>';
         h += `<div style="margin-top:24px" class="topbtns"><button class="b2" onclick="openSheet('addTransfer')">＋ 新增獨立還款</button></div></div>`;
         
-        h += `<div class="section"><h2>還款紀錄</h2><div class="acrylic-list-panel">`;
+        h += `<div class="section"><h2>還款紀錄 (所有人)</h2><div class="acrylic-list-panel">`;
         if(transfers().length) { 
             h += transfers().map(t => { 
                 const f = members().find(m=>m.id===t.from) || {name:'?'}; 
@@ -2056,24 +2059,31 @@ function saveExpense() {
           paidBy = $('#epay').value;
     
     const sharedWith = [];
-    document.querySelectorAll('[data-share]').forEach(x => { 
-        if(x.checked) sharedWith.push(x.getAttribute('data-share')); 
-    });
+    
+    // 如果係個人消費，強行清空所有「分擔人」同「手動分帳」資料
+    if (type !== 'personal') {
+        document.querySelectorAll('[data-share]').forEach(x => { 
+            if(x.checked) sharedWith.push(x.getAttribute('data-share')); 
+        });
 
-    if(type === 'shared' && sharedWith.length === 0) {
-        return toast('❌ 請至少選擇一位分擔人');
+        if(sharedWith.length === 0) {
+            return toast('❌ 請至少選擇一位分擔人');
+        }
     }
     
-    const splitMode = dS ? dS.getAttribute('data-split') : 'equal';
+    let splitMode = 'equal';
     const splits = {};
-    document.querySelectorAll('.split').forEach(i => { 
-        splits[i.getAttribute('data-mid')] = +i.value||0; 
-    });
-    
-    if(splitMode === 'manual' && type === 'shared') {
-        let s = 0;
-        Object.keys(splits).forEach(k => { s += (+splits[k]||0); });
-        if(Math.abs(s - amount) > 1) return toast('❌ 手動分帳總和不符');
+    if (type !== 'personal') {
+        splitMode = dS ? dS.getAttribute('data-split') : 'equal';
+        document.querySelectorAll('.split').forEach(i => { 
+            splits[i.getAttribute('data-mid')] = +i.value||0; 
+        });
+        
+        if(splitMode === 'manual') {
+            let s = 0;
+            Object.keys(splits).forEach(k => { s += (+splits[k]||0); });
+            if(Math.abs(s - amount) > 1) return toast('❌ 手動分帳總和不符');
+        }
     }
     
     const obj = {
@@ -2208,11 +2218,46 @@ function boot() {
                 return dt;
             };
 
+            // 🤖 自動數據清洗器 (Auto DB Cleaner)
+            let needsMigration = false;
+            const sanitize = (nodeData) => {
+                if (!nodeData) return {};
+                let dict = {};
+                for (const k in nodeData) {
+                    const item = nodeData[k];
+                    if (!item) continue;
+                    
+                    // 偵測到舊式 Array 數字 Key，標記需要統一修復
+                    if (k !== item.id) needsMigration = true;
+
+                    // 處理雙胞胎數據：優先保留 Key 匹配 ID 嘅最新版本
+                    if (dict[item.id]) {
+                        if (k === item.id) {
+                            dict[item.id] = item;
+                        }
+                    } else {
+                        dict[item.id] = item;
+                    }
+                }
+                return dict;
+            };
+
+            const safeMembers = sanitize(data.members);
+            const safeExpenses = sanitize(data.expenses);
+            const safeTransfers = sanitize(data.transfers);
+
+            // 觸發背景修復，永久解決雙胞胎與陣列衝突
+            if (needsMigration) {
+                tripRef.child('members').set(safeMembers);
+                tripRef.child('expenses').set(safeExpenses);
+                tripRef.child('transfers').set(safeTransfers);
+            }
+
             const toArray = (obj) => obj ? Object.values(obj) : [];
 
-            state.members = toArray(data.members);
-            state.expenses = toArray(data.expenses).map(e => ({...e, dt: fixTime(e.dt)})).sort((a,b) => new Date(b.dt) - new Date(a.dt));
-            state.transfers = toArray(data.transfers).map(t => ({...t, dt: fixTime(t.dt)})).sort((a,b) => new Date(b.dt) - new Date(a.dt));
+            state.members = toArray(safeMembers);
+            state.expenses = toArray(safeExpenses).map(e => ({...e, dt: fixTime(e.dt)})).sort((a,b) => new Date(b.dt) - new Date(a.dt));
+            state.transfers = toArray(safeTransfers).map(t => ({...t, dt: fixTime(t.dt)})).sort((a,b) => new Date(b.dt) - new Date(a.dt));
             state.snapshots = toArray(data.snapshots);
         } else {
             state.members = [];
